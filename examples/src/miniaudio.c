@@ -22,5 +22,4 @@ void ma_device_config_init_with_decoder(ma_device_config *device_config, ma_devi
   device_config->sampleRate        = decoder->outputSampleRate;
   device_config->dataCallback      = data_callback;
   device_config->pUserData         = decoder;
-  return device_config;
 }
