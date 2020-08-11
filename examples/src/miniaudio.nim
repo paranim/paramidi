@@ -3208,7 +3208,7 @@ when not defined(MA_NO_GENERATION):
   proc ma_noise_read_pcm_frames*(pNoise: ptr ma_noise; pFramesOut: pointer;
                                 frameCount: ma_uint64): ma_uint64
 
-proc ma_decoder_new*(): ptr ma_decoder
-proc ma_device_new*(): ptr ma_device
-proc ma_device_config_new*(): ptr ma_device_config
-proc ma_device_config_init_with_decoder*(deviceType: ma_device_type, decoder: ptr ma_decoder, data_callback: ma_device_callback_proc): ptr ma_device_config
+proc ma_decoder_size*(): csize
+proc ma_device_size*(): csize
+proc ma_device_config_size*(): csize
+proc ma_device_config_init_with_decoder*(deviceConfig: ptr ma_device_config, deviceType: ma_device_type, decoder: ptr ma_decoder, data_callback: ma_device_callback_proc)
