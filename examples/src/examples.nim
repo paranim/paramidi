@@ -29,15 +29,13 @@ when isMainModule:
   discard drwav_uninit(wav.addr)
 
   var
-    res: ma_result
     decoder = newSeq[uint8](ma_decoder_size())
     decoderAddr = cast[ptr ma_decoder](decoder[0].addr)
     deviceConfig = newSeq[uint8](ma_device_config_size())
     deviceConfigAddr = cast[ptr ma_device_config](deviceConfig[0].addr)
     device = newSeq[uint8](ma_device_size())
     deviceAddr = cast[ptr ma_device](device[0].addr)
-  res = ma_decoder_init_file("output.wav", nil, decoderAddr)
-  doAssert res == MA_SUCCESS
+  doAssert MA_SUCCESS == ma_decoder_init_file("output.wav", nil, decoderAddr)
 
   proc data_callback(pDevice: ptr ma_device; pOutput: pointer; pInput: pointer; frameCount: ma_uint32) {.cdecl.} =
     discard ma_decoder_read_pcm_frames(decoderAddr, pOutput, frameCount)
@@ -53,6 +51,6 @@ when isMainModule:
     quit("Failed to start playback device.")
 
   sleep(2000)
-  #discard ma_device_stop(deviceAddr)
+  discard ma_device_stop(deviceAddr)
   #ma_device_uninit(deviceAddr)
   discard ma_decoder_uninit(decoderAddr)
