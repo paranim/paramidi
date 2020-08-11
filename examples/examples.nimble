@@ -15,4 +15,3 @@ task dev, "Run dev version":
 
 requires "nim >= 1.2.6"
 requires "paramidi >= 0.1.0"
-requires "slappy >= 0.3.0"

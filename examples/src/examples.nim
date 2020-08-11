@@ -1,7 +1,9 @@
 import paramidi/tsf
-import slappy
-import os
 import dr_wav
+import miniaudio
+import os
+
+proc free*(x: pointer) {.cdecl, importc.}
 
 when isMainModule:
   const
@@ -24,8 +26,30 @@ when isMainModule:
   doAssert numSamples == drwav_write_pcm_frames(wav.addr, numSamples, sec.addr)
   discard drwav_uninit(wav.addr)
 
-  slappyInit()
-  #let sound = newSound("xylophone-sweep.wav")
-  let sound = newSound("output.wav")
-  discard sound.play()
-  sleep(2500)
+  var res: ma_result
+  var decoder = ma_decoder_new()
+  var deviceConfig: ptr ma_device_config
+  var device = ma_device_new()
+  res = ma_decoder_init_file("output.wav", nil, decoder);
+  doAssert res == MA_SUCCESS
+
+  proc data_callback(pDevice: ptr ma_device; pOutput: pointer; pInput: pointer; frameCount: ma_uint32) {.cdecl.} =
+    discard ma_decoder_read_pcm_frames(decoder, pOutput, frameCount)
+
+  deviceConfig = ma_device_config_init_with_decoder(ma_device_type_playback, decoder, data_callback)
+  if ma_device_init(nil, deviceConfig, device) != MA_SUCCESS:
+    discard ma_decoder_uninit(decoder);
+    quit("Failed to open playback device.")
+
+  if ma_device_start(device) != MA_SUCCESS:
+    #ma_device_uninit(device);
+    discard ma_decoder_uninit(decoder);
+    quit("Failed to start playback device.");
+
+  sleep(2000)
+  #discard ma_device_stop(device)
+  #ma_device_uninit(device)
+  discard ma_decoder_uninit(decoder)
+  free(device)
+  free(deviceConfig)
+  free(decoder)
