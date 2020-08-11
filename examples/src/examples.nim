@@ -1,20 +1,24 @@
 import paramidi/tsf
-import dr_wav
-import miniaudio
+import parasound/dr_wav
+import parasound/miniaudio
+import paramidi_soundfonts
 import os
 
 when isMainModule:
   const
     sampleRate = 44100
     numSamples = 1 * sampleRate
-  var sf = tsf_load_filename("../aspirin.sf2")
+  var sf = tsf_load_filename(paramidi_soundfonts.getSoundFontPath("aspirin.sf2"))
+  # if you want to embed the soundfont in the binary, do this instead:
+  #const soundfont = staticRead("paramidi_soundfonts/aspirin.sf2")
+  #var sf = tsf_load_memory(soundfont.cstring, soundfont.len.cint)
   tsf_set_output(sf, TSF_MONO, sampleRate, 0) #sample rate
   tsf_note_on(sf, 0, 60, 1.0f) #preset 0, middle C
   var sec: array[numSamples, cshort] # synthesize 1 second
   tsf_render_short(sf, cast[ptr cshort](sec.addr), sec.len.cint, 0)
 
-  var wav*: drwav
-  var format*: drwav_data_format
+  var wav: drwav
+  var format: drwav_data_format
   format.container = drwav_container_riff
   format.format = DR_WAVE_FORMAT_PCM
   format.channels = 1
