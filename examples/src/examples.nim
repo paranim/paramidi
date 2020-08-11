@@ -38,6 +38,7 @@ when isMainModule:
   doAssert MA_SUCCESS == ma_decoder_init_file("output.wav", nil, decoderAddr)
 
   proc data_callback(pDevice: ptr ma_device; pOutput: pointer; pInput: pointer; frameCount: ma_uint32) {.cdecl.} =
+    let decoderAddr = ma_device_get_decoder(pDevice)
     discard ma_decoder_read_pcm_frames(decoderAddr, pOutput, frameCount)
 
   ma_device_config_init_with_decoder(deviceConfigAddr, ma_device_type_playback, decoderAddr, data_callback)
