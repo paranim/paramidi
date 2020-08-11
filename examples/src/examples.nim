@@ -6,7 +6,12 @@ import os
 
 const
   sampleRate = 44100
-  numSamples = 1 * sampleRate
+  minuteSecs = 60
+  quarterNote = 4
+  defaultTempo = 120
+  defaultNoteLength = quarterNote
+  defaultNoteLengthSeconds = (minuteSecs / defaultTempo) * (defaultNoteLength / quarterNote)
+  defaultSamplesPerNote = int(sampleRate * defaultNoteLengthSeconds)
 
 proc playFile(filename: string, sleepMsecs: int) =
   var
@@ -37,7 +42,7 @@ proc playFile(filename: string, sleepMsecs: int) =
   #ma_device_uninit(deviceAddr)
   discard ma_decoder_uninit(decoderAddr)
 
-proc writeFile(filename: string, data: var openArray[cshort]) =
+proc writeFile(filename: string, data: var openArray[cshort], numSamples: uint) =
   var wav: drwav
   var format: drwav_data_format
   format.container = drwav_container_riff
@@ -55,8 +60,21 @@ when isMainModule:
   #const soundfont = staticRead("paramidi_soundfonts/aspirin.sf2")
   #var sf = tsf_load_memory(soundfont.cstring, soundfont.len.cint)
   tsf_set_output(sf, TSF_MONO, sampleRate, 0) #sample rate
-  tsf_note_on(sf, 0, 60, 1.0f) #preset 0, middle C
-  var data: array[numSamples, cshort] # synthesize 1 second
-  tsf_render_short(sf, cast[ptr cshort](data.addr), data.len.cint, 0)
-  writeFile("output.wav", data)
-  playFile("output.wav", 1000)
+  var
+    noteCount = 0
+    lastNote: cint = -1
+    data = newSeq[cshort]()
+  proc addNote(note: cint) =
+    let index = noteCount * defaultSamplesPerNote
+    noteCount += 1
+    data.setLen(noteCount * defaultSamplesPerNote)
+    if lastNote >= 0:
+      tsf_note_off(sf, 0, lastNote)
+    tsf_note_on(sf, 0, note, 1.0f)
+    tsf_render_short(sf, data[index].addr, defaultSamplesPerNote.cint, 0)
+    lastNote = note
+  addNote(42)
+  addNote(52)
+  let numSamples = noteCount * defaultSamplesPerNote
+  writeFile("output.wav", data, numSamples.uint)
+  playFile("output.wav", int(noteCount.float * defaultNoteLengthSeconds * 1000f))
