@@ -1,3 +1,4 @@
+import paramidi
 import paramidi/tsf
 import parasound/dr_wav
 import parasound/miniaudio
@@ -66,7 +67,7 @@ when isMainModule:
     data = newSeq[cshort]()
   const
     channel = 0
-    instrument = 0 # piano
+    instrument = organ.ord
   tsf_channel_set_presetindex(sf, channel, instrument)
   proc addNote(note: cint) =
     let index = noteCount * defaultSamplesPerNote
