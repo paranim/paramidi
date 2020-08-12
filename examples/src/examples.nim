@@ -64,13 +64,17 @@ when isMainModule:
     noteCount = 0
     lastNote: cint = -1
     data = newSeq[cshort]()
+  const
+    channel = 0
+    instrument = 0 # piano
+  tsf_channel_set_presetindex(sf, channel, instrument)
   proc addNote(note: cint) =
     let index = noteCount * defaultSamplesPerNote
     noteCount += 1
     data.setLen(noteCount * defaultSamplesPerNote)
     if lastNote >= 0:
-      tsf_note_off(sf, 0, lastNote)
-    tsf_note_on(sf, 0, note, 1.0f)
+      tsf_channel_note_off(sf, channel, lastNote)
+    tsf_channel_note_on(sf, channel, note, 1.0f)
     tsf_render_short(sf, data[index].addr, defaultSamplesPerNote.cint, 0)
     lastNote = note
   addNote(42)
