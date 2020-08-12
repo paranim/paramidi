@@ -65,21 +65,17 @@ when isMainModule:
     noteCount = 0
     lastNote: cint = -1
     data = newSeq[cshort]()
-  const
-    channel = 0
-    instrument = organ.ord
-  tsf_channel_set_presetindex(sf, channel, instrument)
-  proc addNote(note: cint) =
+  proc addNote(note: cint, instrument: Instrument) =
     let index = noteCount * defaultSamplesPerNote
     noteCount += 1
     data.setLen(noteCount * defaultSamplesPerNote)
     if lastNote >= 0:
-      tsf_channel_note_off(sf, channel, lastNote)
-    tsf_channel_note_on(sf, channel, note, 1.0f)
+      tsf_note_off(sf, instrument.ord.cint, lastNote)
+    tsf_note_on(sf, instrument.ord.cint, note, 1.0f)
     tsf_render_short(sf, data[index].addr, defaultSamplesPerNote.cint, 0)
     lastNote = note
-  addNote(42)
-  addNote(52)
+  addNote(42, piano)
+  addNote(52, piano)
   let numSamples = noteCount * defaultSamplesPerNote
   writeFile("output.wav", data, numSamples.uint)
   playFile("output.wav", int(noteCount.float * defaultNoteLengthSeconds * 1000f))
