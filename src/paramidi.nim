@@ -196,6 +196,7 @@ proc parse(ctx: var Context, instrument: Instrument) =
   ctx.instrument = instrument
 
 proc parse(ctx: var Context, t: tuple) =
+  var temp = ctx
   for k, v in t.fieldPairs:
     when k == "length":
       ctx.length =
@@ -206,7 +207,9 @@ proc parse(ctx: var Context, t: tuple) =
     elif k == "octave":
       ctx.octave = v
     else:
-      parse(ctx, v)
+      parse(temp, v)
+  ctx.events = temp.events
+  ctx.time = temp.time
 
 proc parse*(content: tuple): seq[Event] =
   var ctx = Context(
