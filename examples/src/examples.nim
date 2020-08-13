@@ -59,21 +59,29 @@ when isMainModule:
   #var sf = tsf_load_memory(soundfont.cstring, soundfont.len.cint)
   tsf_set_output(sf, TSF_MONO, sampleRate, 0) #sample rate
   let
-    content = (piano, c, d)
-    parsedContent = parse(content)
-    noteLength = parsedContent[0][0].length
-    noteCount = parsedContent.len
-    noteLengthSeconds = (minuteSecs / defaultTempo) * (noteLength / quarterNote)
-    samplesPerNote = int(sampleRate * noteLengthSeconds)
-    numSamples = noteCount * samplesPerNote
+    content = (piano, c, (length: 1/2), d)
+    events = parse(content)
   var
-    data = newSeq[cshort](noteCount * samplesPerNote)
-    index = 0
-  for events in parse(content):
-    for event in events:
-      tsf_note_on(sf, event.instrument.ord.cint, cint(event.note.ord + 60), 1.0f)
-    tsf_render_short(sf, data[index * samplesPerNote].addr, samplesPerNote.cint, 0)
-    tsf_note_off_all(sf)
-    index += 1
-  writeFile("output.wav", data, numSamples.uint)
-  playFile("output.wav", int(noteCount.float * noteLengthSeconds * 1000f))
+    data = newSeq[cshort]()
+    lastRenderTime = 0.0
+  for event in events:
+    case event.kind:
+      of Single:
+        raise newException(Exception, "Invalid event")
+      of On:
+        tsf_note_on(sf, event.instrument.ord.cint, cint(event.note.ord + 60), 1.0f)
+      of Off:
+        let
+          currentSize = data.len
+          noteLength = event.time - lastRenderTime
+          noteLengthSeconds = (minuteSecs / defaultTempo) * (noteLength / quarterNote)
+          numSamples = int(sampleRate * noteLengthSeconds)
+          newSize = currentSize + numSamples
+        assert(noteLength > 0)
+        data.setLen(newSize)
+        tsf_render_short(sf, data[currentSize].addr, numSamples.cint, 0)
+        tsf_note_off(sf, event.instrument.ord.cint, cint(event.note.ord + 60))
+        lastRenderTime = event.time
+  writeFile("output.wav", data, data.len.uint)
+  let totalTime = (minuteSecs / defaultTempo) * (lastRenderTime / quarterNote)
+  playFile("output.wav", int(totalTime * 1000f))

@@ -151,12 +151,18 @@ type
     helicopter,
     applause,
     gun_shot,
+  EventKind* = enum
+    Single, On, Off,
   Event = object
     note*: Note
-    time: float
+    time*: float
     instrument*: Instrument
     octave: range[1..7]
-    length*: float
+    case kind*: EventKind
+      of Single:
+        length*: float
+      else:
+        nil
   Context = object
     events: seq[Event]
     time: float
@@ -168,6 +174,7 @@ proc parse(ctx: var Context, note: Note) =
   if ctx.instrument == none:
     raise newException(Exception, $ note & " note cannot be played without an instrument")
   let event = Event(
+    kind: Single,
     note: note,
     time: ctx.time,
     instrument: ctx.instrument,
@@ -180,28 +187,36 @@ proc parse(ctx: var Context, note: Note) =
 proc parse(ctx: var Context, instrument: Instrument) =
   ctx.instrument = instrument
 
-proc splitEvent(event: Event, length: float): seq[Event] =
-  assert(event.length > length)
-  let count = int(event.length / length)
-  assert(event.length == count.float * length) # the length must be evenly divisible
-  for i in 0 .. count:
-    var e = event
-    e.length = length
-    e.time += i.float * length
-    result.add(e)
-
-proc joinEvents(events: seq[Event]): seq[seq[Event]] =
-  var shortestLength = 0.0
-  for event in events:
-    if shortestLength == 0 or event.length < shortestLength:
-      shortestLength = event.length
-  var splitEvents: seq[Event]
-  for event in events:
-    if event.length > shortestLength:
-      splitEvents.add(splitEvent(event, shortestLength))
+proc parse(ctx: var Context, t: tuple) =
+  for k, v in t.fieldPairs:
+    when k == "length":
+      ctx.length =
+        when v is int:
+          v.float
+        else:
+          v
     else:
-      splitEvents.add(event)
-  algorithm.sort(splitEvents, proc (x, y: Event): int =
+      parse(ctx, v)
+
+proc splitEvents(events: var seq[Event]): seq[Event] =
+  for event in events:
+    var e1 = Event(
+      kind: On,
+      note: event.note,
+      time: event.time,
+      instrument: event.instrument,
+      octave: event.octave,
+    )
+    var e2 = Event(
+      kind: Off,
+      note: event.note,
+      time: event.time + event.length,
+      instrument: event.instrument,
+      octave: event.octave,
+    )
+    result.add(e1)
+    result.add(e2)
+  algorithm.sort(result, proc (x, y: Event): int =
     if x.time < y.time:
       -1
     elif x.time > y.time:
@@ -209,19 +224,13 @@ proc joinEvents(events: seq[Event]): seq[seq[Event]] =
     else:
       0
   )
-  for event in splitEvents:
-    if result.len == 0 or result[result.len-1][0].time < event.time:
-      result.add(@[event])
-    else:
-      result[result.len-1].add(event)
 
-proc parse*(content: tuple): seq[seq[Event]] =
+proc parse*(content: tuple): seq[Event] =
   var ctx = Context(
     time: 0,
     instrument: none,
     octave: 4,
     length: 1/4,
   )
-  for k, v in content.fieldPairs:
-    parse(ctx, v)
-  joinEvents(ctx.events)
+  parse(ctx, content)
+  splitEvents(ctx.events)
