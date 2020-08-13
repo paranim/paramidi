@@ -182,13 +182,13 @@ proc parse(ctx: var Context, instrument: Instrument) =
 
 proc splitEvent(event: Event, length: float): seq[Event] =
   assert(event.length > length)
-  var t = 0.0
-  while t < event.length:
+  let count = int(event.length / length)
+  assert(event.length == count.float * length) # the length must be evenly divisible
+  for i in 0 .. count:
     var e = event
-    e.length = min(length, event.length - t)
-    e.time += t
+    e.length = length
+    e.time += i.float * length
     result.add(e)
-    t += e.length
 
 proc joinEvents(events: seq[Event]): seq[seq[Event]] =
   var shortestLength = 0.0
