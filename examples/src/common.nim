@@ -1,13 +1,10 @@
-import paramidi
-import paramidi/tsf
 import parasound/dr_wav
 import parasound/miniaudio
-import paramidi_soundfonts
 import os
 
-const sampleRate = 44100
+const sampleRate* = 44100
 
-proc playFile(filename: string, sleepMsecs: int) =
+proc playFile*(filename: string, sleepMsecs: int) =
   var
     decoder = newSeq[uint8](ma_decoder_size())
     decoderAddr = cast[ptr ma_decoder](decoder[0].addr)
@@ -36,7 +33,7 @@ proc playFile(filename: string, sleepMsecs: int) =
   ma_device_uninit(deviceAddr)
   discard ma_decoder_uninit(decoderAddr)
 
-proc writeFile(filename: string, data: var openArray[cshort], numSamples: uint) =
+proc writeFile*(filename: string, data: var openArray[cshort], numSamples: uint) =
   var wav: drwav
   var format: drwav_data_format
   format.container = drwav_container_riff
@@ -47,20 +44,3 @@ proc writeFile(filename: string, data: var openArray[cshort], numSamples: uint) 
   doAssert drwav_init_file_write(wav.addr, filename, addr(format), nil)
   doAssert numSamples == drwav_write_pcm_frames(wav.addr, numSamples, data.addr)
   discard drwav_uninit(wav.addr)
-
-when isMainModule:
-  var sf = tsf_load_filename(paramidi_soundfonts.getSoundFontPath("generaluser.sf2"))
-  # if you want to embed the soundfont in the binary, do this instead:
-  #const soundfont = staticRead("paramidi_soundfonts/generaluser.sf2")
-  #var sf = tsf_load_memory(soundfont.cstring, soundfont.len.cint)
-  tsf_set_output(sf, TSF_MONO, sampleRate, 0)
-  let
-    content =
-      ((mode: concurrent),
-       (banjo, (octave: 3), 1/16, b, `c+`, 1/8, `d+`, b, `c+`, a, b, g, a),
-       (guitar, (octave: 3), 1/16, r, r, 1/8, g, r, d, r, g, g, d))
-    parsed = parse(content)
-  var res = render[cshort](parsed, soundFont = sf, sampleRate = sampleRate)
-  writeFile("output.wav", res.data, res.data.len.uint)
-  const padding = 500f # add a half second so it doesn't cut off abruptly
-  playFile("output.wav", int(res.seconds * 1000f + padding))

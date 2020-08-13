@@ -5,10 +5,7 @@ author        = "oakes"
 description   = "Paramidi examples"
 license       = "Public Domain"
 srcDir        = "src"
-bin           = @["examples"]
-
-task dev, "Run dev version":
-  exec "nimble run examples"
+bin           = @["dueling_banjos"]
 
 
 # Dependencies
