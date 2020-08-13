@@ -8,11 +8,8 @@ import os
 const
   sampleRate = 44100
   minuteSecs = 60
-  quarterNote = 4
+  quarterNote = 1/4
   defaultTempo = 120
-  defaultNoteLength = quarterNote
-  defaultNoteLengthSeconds = (minuteSecs / defaultTempo) * (defaultNoteLength / quarterNote)
-  defaultSamplesPerNote = int(sampleRate * defaultNoteLengthSeconds)
 
 proc playFile(filename: string, sleepMsecs: int) =
   var
@@ -61,21 +58,22 @@ when isMainModule:
   #const soundfont = staticRead("paramidi_soundfonts/aspirin.sf2")
   #var sf = tsf_load_memory(soundfont.cstring, soundfont.len.cint)
   tsf_set_output(sf, TSF_MONO, sampleRate, 0) #sample rate
+  let
+    content = (piano, c, d)
+    parsedContent = parse(content)
+    noteLength = parsedContent[0][0].length
+    noteCount = parsedContent.len
+    noteLengthSeconds = (minuteSecs / defaultTempo) * (noteLength / quarterNote)
+    samplesPerNote = int(sampleRate * noteLengthSeconds)
+    numSamples = noteCount * samplesPerNote
   var
-    noteCount = 0
-    lastNote: cint = -1
-    data = newSeq[cshort]()
-  proc addNote(note: cint, instrument: Instrument) =
-    let index = noteCount * defaultSamplesPerNote
-    noteCount += 1
-    data.setLen(noteCount * defaultSamplesPerNote)
-    if lastNote >= 0:
-      tsf_note_off(sf, instrument.ord.cint, lastNote)
-    tsf_note_on(sf, instrument.ord.cint, note, 1.0f)
-    tsf_render_short(sf, data[index].addr, defaultSamplesPerNote.cint, 0)
-    lastNote = note
-  addNote(42, piano)
-  addNote(52, piano)
-  let numSamples = noteCount * defaultSamplesPerNote
+    data = newSeq[cshort](noteCount * samplesPerNote)
+    index = 0
+  for events in parse(content):
+    for event in events:
+      tsf_note_on(sf, event.instrument.ord.cint, cint(event.note.ord + 60), 1.0f)
+    tsf_render_short(sf, data[index * samplesPerNote].addr, samplesPerNote.cint, 0)
+    tsf_note_off_all(sf)
+    index += 1
   writeFile("output.wav", data, numSamples.uint)
-  playFile("output.wav", int(noteCount.float * defaultNoteLengthSeconds * 1000f))
+  playFile("output.wav", int(noteCount.float * noteLengthSeconds * 1000f))

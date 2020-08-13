@@ -1,7 +1,12 @@
+from sequtils import nil
+from algorithm import nil
+
 type
   Note* = enum
-    c, cx, d, dx, e, f, fx, g, gx, a, ax, b
+    c, cx, d, dx, e, f, fx, g, gx, a, ax, b,
+    r, # rest
   Instrument* = enum
+    none = -1,
     # Piano
     piano, # acoustic_grand_piano
     bright_acoustic_piano,
@@ -146,3 +151,77 @@ type
     helicopter,
     applause,
     gun_shot,
+  Event = object
+    note*: Note
+    time: float
+    instrument*: Instrument
+    octave: range[1..7]
+    length*: float
+  Context = object
+    events: seq[Event]
+    time: float
+    instrument: Instrument
+    octave: range[1..7]
+    length: float
+
+proc parse(ctx: var Context, note: Note) =
+  if ctx.instrument == none:
+    raise newException(Exception, $ note & " note cannot be played without an instrument")
+  let event = Event(
+    note: note,
+    time: ctx.time,
+    instrument: ctx.instrument,
+    octave: ctx.octave,
+    length: ctx.length,
+  )
+  ctx.events.add(event)
+  ctx.time += ctx.length
+
+proc parse(ctx: var Context, instrument: Instrument) =
+  ctx.instrument = instrument
+
+proc splitEvent(event: Event, length: float): seq[Event] =
+  assert(event.length > length)
+  var t = 0.0
+  while t < event.length:
+    var e = event
+    e.length = min(length, event.length - t)
+    e.time += t
+    result.add(e)
+    t += e.length
+
+proc joinEvents(events: seq[Event]): seq[seq[Event]] =
+  var shortestLength = 0.0
+  for event in events:
+    if shortestLength == 0 or event.length < shortestLength:
+      shortestLength = event.length
+  var splitEvents: seq[Event]
+  for event in events:
+    if event.length > shortestLength:
+      splitEvents.add(splitEvent(event, shortestLength))
+    else:
+      splitEvents.add(event)
+  algorithm.sort(splitEvents, proc (x, y: Event): int =
+    if x.time < y.time:
+      -1
+    elif x.time > y.time:
+      1
+    else:
+      0
+  )
+  for event in splitEvents:
+    if result.len == 0 or result[result.len-1][0].time < event.time:
+      result.add(@[event])
+    else:
+      result[result.len-1].add(event)
+
+proc parse*(content: tuple): seq[seq[Event]] =
+  var ctx = Context(
+    time: 0,
+    instrument: none,
+    octave: 4,
+    length: 1/4,
+  )
+  for k, v in content.fieldPairs:
+    parse(ctx, v)
+  joinEvents(ctx.events)
