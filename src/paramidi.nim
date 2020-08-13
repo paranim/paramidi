@@ -203,6 +203,7 @@ type
     instrument: Instrument
     octave: range[1..7]
     length: float
+    play: bool
   RenderResult*[T] = object
     data*: seq[T]
     seconds*: float
@@ -306,6 +307,8 @@ proc getOctave(ctx: Context, note: Note): range[1..7] =
       7
 
 proc parse(ctx: var Context, note: Note) =
+  if not ctx.play:
+    return
   if ctx.instrument == none:
     raise newException(Exception, $ note & " note cannot be played without an instrument")
   let
@@ -332,22 +335,24 @@ proc parse(ctx: var Context, note: Note) =
 proc parse(ctx: var Context, instrument: Instrument) =
   ctx.instrument = instrument
 
-proc parseLength(ctx: var Context, length: float) =
+proc setLength(ctx: var Context, length: float) =
   ctx.length = length
 
-proc parseLength(ctx: var Context, length: int) =
+proc setLength(ctx: var Context, length: int) =
   ctx.length = length.float
 
 proc parse(ctx: var Context, length: float | int) =
-  parseLength(ctx, length)
+  setLength(ctx, length)
 
 proc parse(ctx: var Context, content: tuple) =
   var temp = ctx
   for k, v in content.fieldPairs:
     when k == "length":
-      parseLength(ctx, v)
+      setLength(ctx, v)
     elif k == "octave":
       ctx.octave = v
+    elif k == "play":
+      ctx.play = v
     else:
       parse(temp, v)
   ctx.events = temp.events
@@ -359,6 +364,7 @@ proc parse*(content: tuple): seq[Event] =
     instrument: none,
     octave: 4,
     length: 1/4,
+    play: true,
   )
   parse(ctx, content)
   result = ctx.events
