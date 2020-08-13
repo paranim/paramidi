@@ -167,8 +167,8 @@ type
     instrument: Instrument
     octave: range[1..7]
     length: float
-  RenderResult* = object
-    data*: seq[cshort]
+  RenderResult*[T] = object
+    data*: seq[T]
     seconds*: float
 
 proc parse(ctx: var Context, note: Note) =
@@ -226,7 +226,7 @@ proc parse*(content: tuple): seq[Event] =
       0
   )
 
-proc render*(events: seq[Event], soundFont: ptr tsf, sampleRate: int): RenderResult =
+proc render*[T: cshort](events: seq[Event], soundFont: ptr tsf, sampleRate: int): RenderResult[T] =
   var lastRenderTime = 0.0
   const
     scaleCount = 12
@@ -247,7 +247,8 @@ proc render*(events: seq[Event], soundFont: ptr tsf, sampleRate: int): RenderRes
           numSamples = sampleRate.float * noteLengthSeconds
           newSize = currentSize + numSamples.int
         result.data.setLen(newSize)
-        tsf_render_short(soundFont, result.data[currentSize].addr, numSamples.cint, 0)
+        when T is cshort:
+          tsf_render_short(soundFont, result.data[currentSize].addr, numSamples.cint, 0)
         if event.note != r:
           tsf_note_off(soundFont, event.instrument.ord.cint, note)
         lastRenderTime = event.time
