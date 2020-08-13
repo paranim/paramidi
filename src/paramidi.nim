@@ -157,7 +157,7 @@ type
     note*: Note
     time*: float
     instrument*: Instrument
-    octave: range[1..7]
+    octave*: range[1..7]
     case kind*: EventKind
       of Single:
         length*: float
@@ -195,6 +195,8 @@ proc parse(ctx: var Context, t: tuple) =
           v.float
         else:
           v
+    elif k == "octave":
+      ctx.octave = v
     else:
       parse(ctx, v)
 
