@@ -1,5 +1,14 @@
 A Nim library for making MIDI music. It uses [TinySoundFont](https://github.com/schellingb/TinySoundFont) underneath. A musical score is modelled as a simple hierarchy of tuples. There are probably bugs...or maybe your music just sounds bad. It could be that. Think about it.
 
+## Quick start
+
+The fastest way to get started is by cloning the [starter project](https://github.com/paranim/paramidi_starter).
+
+## Documentation
+
+* Check out the `examples` dir
+* Look at this commented example:
+
 ```nim
 # first hit middle c on the piano
 (piano, c)
