@@ -5,11 +5,7 @@ import parasound/miniaudio
 import paramidi_soundfonts
 import os
 
-const
-  sampleRate = 44100
-  minuteSecs = 60
-  quarterNote = 1/4
-  defaultTempo = 120
+const sampleRate = 44100
 
 proc playFile(filename: string, sleepMsecs: int) =
   var
@@ -57,33 +53,8 @@ when isMainModule:
   # if you want to embed the soundfont in the binary, do this instead:
   #const soundfont = staticRead("paramidi_soundfonts/generaluser.sf2")
   #var sf = tsf_load_memory(soundfont.cstring, soundfont.len.cint)
-  tsf_set_output(sf, TSF_MONO, sampleRate, 0) #sample rate
-  let
-    content = (piano, (octave: 3), c, d, r, (octave: 4, length: 1/2), e, f)
-    events = parse(content)
-  var
-    data = newSeq[cshort]()
-    lastRenderTime = 0.0
-    totalTime = 0.0
-  const scaleCount = 12
-  for event in events:
-    let note = cint(event.note.ord + event.octave.ord * scaleCount + scaleCount)
-    case event.kind:
-      of On:
-        if event.note != r:
-          tsf_note_on(sf, event.instrument.ord.cint, note, 1.0f)
-      of Off:
-        let
-          currentSize = data.len
-          noteLength = event.time - lastRenderTime
-          noteLengthSeconds = (minuteSecs / defaultTempo) * (noteLength / quarterNote)
-          numSamples = int(sampleRate * noteLengthSeconds)
-          newSize = currentSize + numSamples
-        data.setLen(newSize)
-        tsf_render_short(sf, data[currentSize].addr, numSamples.cint, 0)
-        if event.note != r:
-          tsf_note_off(sf, event.instrument.ord.cint, note)
-        lastRenderTime = event.time
-        totalTime += noteLengthSeconds
-  writeFile("output.wav", data, data.len.uint)
-  playFile("output.wav", int(totalTime * 1000f))
+  tsf_set_output(sf, TSF_MONO, sampleRate, 0)
+  let content = (piano, (octave: 3), c, d, r, (octave: 4, length: 1/2), e, f)
+  var res = render(parse(content), soundFont = sf, sampleRate = sampleRate)
+  writeFile("output.wav", res.data, res.data.len.uint)
+  playFile("output.wav", int(res.seconds * 1000f))

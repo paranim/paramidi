@@ -1,5 +1,6 @@
 from sequtils import nil
 from algorithm import nil
+import paramidi/tsf
 
 type
   Note* = enum
@@ -151,21 +152,24 @@ type
     helicopter,
     applause,
     gun_shot,
-  EventKind* = enum
+  EventKind = enum
     On, Off,
   Event = object
-    kind*: EventKind
-    note*: Note
-    time*: float
-    instrument*: Instrument
-    octave*: range[1..7]
-    length*: float
+    kind: EventKind
+    note: Note
+    time: float
+    instrument: Instrument
+    octave: range[1..7]
+    length: float
   Context = object
     events: seq[Event]
     time: float
     instrument: Instrument
     octave: range[1..7]
     length: float
+  RenderResult* = object
+    data*: seq[cshort]
+    seconds*: float
 
 proc parse(ctx: var Context, note: Note) =
   if ctx.instrument == none:
@@ -221,3 +225,30 @@ proc parse*(content: tuple): seq[Event] =
     else:
       0
   )
+
+proc render*(events: seq[Event], soundFont: ptr tsf, sampleRate: int): RenderResult =
+  var lastRenderTime = 0.0
+  const
+    scaleCount = 12
+    minuteSecs = 60
+    quarterNote = 1/4
+    defaultTempo = 120
+  for event in events:
+    let note = cint(event.note.ord + event.octave.ord * scaleCount + scaleCount)
+    case event.kind:
+      of On:
+        if event.note != r:
+          tsf_note_on(soundFont, event.instrument.ord.cint, note, 1.0f)
+      of Off:
+        let
+          currentSize = result.data.len
+          noteLength = event.time - lastRenderTime
+          noteLengthSeconds = (minuteSecs / defaultTempo) * (noteLength / quarterNote)
+          numSamples = sampleRate.float * noteLengthSeconds
+          newSize = currentSize + numSamples.int
+        result.data.setLen(newSize)
+        tsf_render_short(soundFont, result.data[currentSize].addr, numSamples.cint, 0)
+        if event.note != r:
+          tsf_note_off(soundFont, event.instrument.ord.cint, note)
+        lastRenderTime = event.time
+        result.seconds += noteLengthSeconds
