@@ -59,7 +59,7 @@ when isMainModule:
   #var sf = tsf_load_memory(soundfont.cstring, soundfont.len.cint)
   tsf_set_output(sf, TSF_MONO, sampleRate, 0) #sample rate
   let
-    content = (piano, (octave: 3), c, d, (octave: 4, length: 1/2), e, f)
+    content = (piano, (octave: 3), c, d, r, (octave: 4, length: 1/2), e, f)
     events = parse(content)
   var
     data = newSeq[cshort]()
@@ -70,7 +70,8 @@ when isMainModule:
     let note = cint(event.note.ord + event.octave.ord * scaleCount + scaleCount)
     case event.kind:
       of On:
-        tsf_note_on(sf, event.instrument.ord.cint, note, 1.0f)
+        if event.note != r:
+          tsf_note_on(sf, event.instrument.ord.cint, note, 1.0f)
       of Off:
         let
           currentSize = data.len
@@ -80,7 +81,8 @@ when isMainModule:
           newSize = currentSize + numSamples
         data.setLen(newSize)
         tsf_render_short(sf, data[currentSize].addr, numSamples.cint, 0)
-        tsf_note_off(sf, event.instrument.ord.cint, note)
+        if event.note != r:
+          tsf_note_off(sf, event.instrument.ord.cint, note)
         lastRenderTime = event.time
         totalTime += noteLengthSeconds
   writeFile("output.wav", data, data.len.uint)
