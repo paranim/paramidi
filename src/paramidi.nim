@@ -310,7 +310,7 @@ proc getOctave(ctx: Context, note: Note): range[1..7] =
     of c7, cx7, d7, dx7, e7, f7, fx7, g7, gx7, a7, ax7, b7:
       7
 
-proc parse(ctx: var Context, note: Note) =
+proc compile(ctx: var Context, note: Note) =
   if not ctx.play:
     return
   if ctx.instrument == none and note != r:
@@ -336,16 +336,16 @@ proc parse(ctx: var Context, note: Note) =
   ))
   ctx.time += ctx.length
 
-proc parse(ctx: var Context, chord: set[Note]) =
+proc compile(ctx: var Context, chord: set[Note]) =
   if not ctx.play:
     return
   let time = ctx.time
   for note in chord:
-    parse(ctx, note)
+    compile(ctx, note)
     ctx.time = time
   ctx.time += ctx.length
 
-proc parse(ctx: var Context, instrument: Instrument) =
+proc compile(ctx: var Context, instrument: Instrument) =
   ctx.instrument = instrument
 
 proc setLength(ctx: var Context, length: float) =
@@ -354,10 +354,10 @@ proc setLength(ctx: var Context, length: float) =
 proc setLength(ctx: var Context, length: int) =
   ctx.length = length.float
 
-proc parse(ctx: var Context, length: float | int) =
+proc compile(ctx: var Context, length: float | int) =
   setLength(ctx, length)
 
-proc parse(ctx: var Context, content: tuple) =
+proc compile(ctx: var Context, content: tuple) =
   var
     temp = ctx
     concurrent = false
@@ -375,7 +375,7 @@ proc parse(ctx: var Context, content: tuple) =
       ctx.tempo = v
     else:
       let mode = temp.mode
-      parse(temp, v)
+      compile(temp, v)
       if mode != temp.mode and temp.mode == Mode.concurrent:
         concurrent = true
         temp.mode = Mode.sequential
@@ -389,7 +389,7 @@ proc parse(ctx: var Context, content: tuple) =
   else:
     ctx.time = temp.time
 
-proc parse*(content: tuple): seq[Event] =
+proc compile*(content: tuple): seq[Event] =
   var ctx = Context(
     time: 0,
     instrument: none,
@@ -399,7 +399,7 @@ proc parse*(content: tuple): seq[Event] =
     mode: sequential,
     tempo: 120,
   )
-  parse(ctx, content)
+  compile(ctx, content)
   result = ctx.events
   algorithm.sort(result, proc (x, y: Event): int =
     if x.time < y.time:

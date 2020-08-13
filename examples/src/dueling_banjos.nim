@@ -53,7 +53,7 @@ when isMainModule:
   #const soundfont = staticRead("paramidi_soundfonts/generaluser.sf2")
   #var sf = tsf_load_memory(soundfont.cstring, soundfont.len.cint)
   tsf_set_output(sf, TSF_MONO, common.sampleRate, 0)
-  var res = render[cshort](parse(score), soundFont = sf, sampleRate = common.sampleRate)
+  var res = render[cshort](compile(score), soundFont = sf, sampleRate = common.sampleRate)
   common.writeFile("output.wav", res.data, res.data.len.uint)
   const padding = 500f # add a half second so it doesn't cut off abruptly
   common.playFile("output.wav", int(res.seconds * 1000f + padding))
