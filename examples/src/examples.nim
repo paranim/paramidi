@@ -54,7 +54,13 @@ when isMainModule:
   #const soundfont = staticRead("paramidi_soundfonts/generaluser.sf2")
   #var sf = tsf_load_memory(soundfont.cstring, soundfont.len.cint)
   tsf_set_output(sf, TSF_MONO, sampleRate, 0)
-  let content = (guitar, (octave: 3), 1/8, b, `c+`, 1/4, `d+`, b, `c+`, a, b, g, a)
-  var res = render[cshort](parse(content), soundFont = sf, sampleRate = sampleRate)
+  let
+    content =
+      ((mode: concurrent),
+       (banjo, (octave: 3), 1/16, b, `c+`, 1/8, `d+`, b, `c+`, a, b, g, a),
+       (guitar, (octave: 3), 1/16, r, r, 1/8, g, r, d, r, g, g, d))
+    parsed = parse(content)
+  var res = render[cshort](parsed, soundFont = sf, sampleRate = sampleRate)
   writeFile("output.wav", res.data, res.data.len.uint)
-  playFile("output.wav", int(res.seconds * 1000f))
+  const padding = 500f # add a half second so it doesn't cut off abruptly
+  playFile("output.wav", int(res.seconds * 1000f + padding))

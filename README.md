@@ -39,7 +39,7 @@ A Nim library for making MIDI music. It uses [TinySoundFont](https://github.com/
   1/8, {d, `b-`, `g-`}, {d, `b-`, `g-`},
   1/4, {d, `b-`, `g-`}, {e, c, `g-`}, {d, `b-`, `g-`})
 
-# to play two instruments simultaneously, set the "mode" attribute
-((mode: simultaneous),
+# to play two instruments concurrently, set the "mode" attribute
+((mode: concurrent),
  (banjo, (octave: 3), 1/16, b, `c+`, 1/8, `d+`, b, `c+`, a, b, g, a),
  (guitar, (octave: 3), 1/16, r, r, 1/8, g, r, d, r, g, g, d)) # the r means rest

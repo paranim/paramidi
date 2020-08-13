@@ -196,7 +196,8 @@ type
     time: float
     instrument: Instrument
     octave: range[1..7]
-    length: float
+  Mode* = enum
+    sequential, concurrent,
   Context = object
     events: seq[Event]
     time: float
@@ -204,6 +205,7 @@ type
     octave: range[1..7]
     length: float
     play: bool
+    mode: Mode
   RenderResult*[T] = object
     data*: seq[T]
     seconds*: float
@@ -309,7 +311,7 @@ proc getOctave(ctx: Context, note: Note): range[1..7] =
 proc parse(ctx: var Context, note: Note) =
   if not ctx.play:
     return
-  if ctx.instrument == none:
+  if ctx.instrument == none and note != r:
     raise newException(Exception, $ note & " note cannot be played without an instrument")
   let
     realNote = getNote(note)
@@ -320,7 +322,6 @@ proc parse(ctx: var Context, note: Note) =
     time: ctx.time,
     instrument: ctx.instrument,
     octave: octave,
-    length: ctx.length,
   ))
   ctx.events.add(Event(
     kind: Off,
@@ -328,7 +329,6 @@ proc parse(ctx: var Context, note: Note) =
     time: ctx.time + ctx.length,
     instrument: ctx.instrument,
     octave: octave,
-    length: ctx.length,
   ))
   ctx.time += ctx.length
 
@@ -345,7 +345,10 @@ proc parse(ctx: var Context, length: float | int) =
   setLength(ctx, length)
 
 proc parse(ctx: var Context, content: tuple) =
-  var temp = ctx
+  var
+    temp = ctx
+    concurrent = false
+    longestTime = ctx.time
   for k, v in content.fieldPairs:
     when k == "length":
       setLength(ctx, v)
@@ -353,10 +356,23 @@ proc parse(ctx: var Context, content: tuple) =
       ctx.octave = v
     elif k == "play":
       ctx.play = v
+    elif k == "mode":
+      ctx.mode = v
     else:
+      let mode = temp.mode
       parse(temp, v)
+      if mode != temp.mode and temp.mode == Mode.concurrent:
+        concurrent = true
+        temp.mode = Mode.sequential
+      if concurrent:
+        if temp.time > longestTime:
+          longestTime = temp.time
+        temp.time = ctx.time
   ctx.events = temp.events
-  ctx.time = temp.time
+  if concurrent:
+    ctx.time = longestTime
+  else:
+    ctx.time = temp.time
 
 proc parse*(content: tuple): seq[Event] =
   var ctx = Context(
@@ -365,6 +381,7 @@ proc parse*(content: tuple): seq[Event] =
     octave: 4,
     length: 1/4,
     play: true,
+    mode: sequential,
   )
   parse(ctx, content)
   result = ctx.events
@@ -397,9 +414,10 @@ proc render*[T: cshort](events: seq[Event], soundFont: ptr tsf, sampleRate: int)
           noteLengthSeconds = (minuteSecs / defaultTempo) * (noteLength / quarterNote)
           numSamples = sampleRate.float * noteLengthSeconds
           newSize = currentSize + numSamples.int
-        result.data.setLen(newSize)
-        when T is cshort:
-          tsf_render_short(soundFont, result.data[currentSize].addr, numSamples.cint, 0)
+        if noteLength > 0:
+          result.data.setLen(newSize)
+          when T is cshort:
+            tsf_render_short(soundFont, result.data[currentSize].addr, numSamples.cint, 0)
         if event.note != r:
           tsf_note_off(soundFont, event.instrument.ord.cint, note)
         lastRenderTime = event.time
