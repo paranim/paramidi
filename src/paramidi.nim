@@ -336,6 +336,15 @@ proc parse(ctx: var Context, note: Note) =
   ))
   ctx.time += ctx.length
 
+proc parse(ctx: var Context, chord: set[Note]) =
+  if not ctx.play:
+    return
+  let time = ctx.time
+  for note in chord:
+    parse(ctx, note)
+    ctx.time = time
+  ctx.time += ctx.length
+
 proc parse(ctx: var Context, instrument: Instrument) =
   ctx.instrument = instrument
 
