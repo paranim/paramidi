@@ -78,7 +78,6 @@ when isMainModule:
           noteLengthSeconds = (minuteSecs / defaultTempo) * (noteLength / quarterNote)
           numSamples = int(sampleRate * noteLengthSeconds)
           newSize = currentSize + numSamples
-        assert(noteLength > 0)
         data.setLen(newSize)
         tsf_render_short(sf, data[currentSize].addr, numSamples.cint, 0)
         tsf_note_off(sf, event.instrument.ord.cint, note)
