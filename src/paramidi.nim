@@ -6,6 +6,42 @@ type
   Note* = enum
     c, cx, d, dx, e, f, fx, g, gx, a, ax, b,
     r, # rest
+    `c+`, `c+1`, `c+2`, `c+3`, `c+4`, `c+5`, `c+6`,
+    `c-`, `c-1`, `c-2`, `c-3`, `c-4`, `c-5`, `c-6`,
+    c1, c2, c3, c4, c5, c6, c7,
+    `cx+`, `cx+1`, `cx+2`, `cx+3`, `cx+4`, `cx+5`, `cx+6`,
+    `cx-`, `cx-1`, `cx-2`, `cx-3`, `cx-4`, `cx-5`, `cx-6`,
+    cx1, cx2, cx3, cx4, cx5, cx6, cx7,
+    `d+`, `d+1`, `d+2`, `d+3`, `d+4`, `d+5`, `d+6`,
+    `d-`, `d-1`, `d-2`, `d-3`, `d-4`, `d-5`, `d-6`,
+    d1, d2, d3, d4, d5, d6, d7,
+    `dx+`, `dx+1`, `dx+2`, `dx+3`, `dx+4`, `dx+5`, `dx+6`,
+    `dx-`, `dx-1`, `dx-2`, `dx-3`, `dx-4`, `dx-5`, `dx-6`,
+    dx1, dx2, dx3, dx4, dx5, dx6, dx7,
+    `e+`, `e+1`, `e+2`, `e+3`, `e+4`, `e+5`, `e+6`,
+    `e-`, `e-1`, `e-2`, `e-3`, `e-4`, `e-5`, `e-6`,
+    e1, e2, e3, e4, e5, e6, e7,
+    `f+`, `f+1`, `f+2`, `f+3`, `f+4`, `f+5`, `f+6`,
+    `f-`, `f-1`, `f-2`, `f-3`, `f-4`, `f-5`, `f-6`,
+    f1, f2, f3, f4, f5, f6, f7,
+    `fx+`, `fx+1`, `fx+2`, `fx+3`, `fx+4`, `fx+5`, `fx+6`,
+    `fx-`, `fx-1`, `fx-2`, `fx-3`, `fx-4`, `fx-5`, `fx-6`,
+    fx1, fx2, fx3, fx4, fx5, fx6, fx7,
+    `g+`, `g+1`, `g+2`, `g+3`, `g+4`, `g+5`, `g+6`,
+    `g-`, `g-1`, `g-2`, `g-3`, `g-4`, `g-5`, `g-6`,
+    g1, g2, g3, g4, g5, g6, g7,
+    `gx+`, `gx+1`, `gx+2`, `gx+3`, `gx+4`, `gx+5`, `gx+6`,
+    `gx-`, `gx-1`, `gx-2`, `gx-3`, `gx-4`, `gx-5`, `gx-6`,
+    gx1, gx2, gx3, gx4, gx5, gx6, gx7,
+    `a+`, `a+1`, `a+2`, `a+3`, `a+4`, `a+5`, `a+6`,
+    `a-`, `a-1`, `a-2`, `a-3`, `a-4`, `a-5`, `a-6`,
+    a1, a2, a3, a4, a5, a6, a7,
+    `ax+`, `ax+1`, `ax+2`, `ax+3`, `ax+4`, `ax+5`, `ax+6`,
+    `ax-`, `ax-1`, `ax-2`, `ax-3`, `ax-4`, `ax-5`, `ax-6`,
+    ax1, ax2, ax3, ax4, ax5, ax6, ax7,
+    `b+`, `b+1`, `b+2`, `b+3`, `b+4`, `b+5`, `b+6`,
+    `b-`, `b-1`, `b-2`, `b-3`, `b-4`, `b-5`, `b-6`,
+    b1, b2, b3, b4, b5, b6, b7,
   Instrument* = enum
     none = -1,
     # Piano
@@ -171,23 +207,124 @@ type
     data*: seq[T]
     seconds*: float
 
+proc getNote(note: Note): Note =
+  case note:
+    of c, cx, d, dx, e, f, fx, g, gx, a, ax, b, r:
+      note
+    of `c+`, `c+1`, `c+2`, `c+3`, `c+4`, `c+5`, `c+6`,
+       `c-`, `c-1`, `c-2`, `c-3`, `c-4`, `c-5`, `c-6`,
+       c1, c2, c3, c4, c5, c6, c7:
+      c
+    of `cx+`, `cx+1`, `cx+2`, `cx+3`, `cx+4`, `cx+5`, `cx+6`,
+       `cx-`, `cx-1`, `cx-2`, `cx-3`, `cx-4`, `cx-5`, `cx-6`,
+       cx1, cx2, cx3, cx4, cx5, cx6, cx7:
+      cx
+    of `d+`, `d+1`, `d+2`, `d+3`, `d+4`, `d+5`, `d+6`,
+       `d-`, `d-1`, `d-2`, `d-3`, `d-4`, `d-5`, `d-6`,
+       d1, d2, d3, d4, d5, d6, d7:
+      d
+    of `dx+`, `dx+1`, `dx+2`, `dx+3`, `dx+4`, `dx+5`, `dx+6`,
+       `dx-`, `dx-1`, `dx-2`, `dx-3`, `dx-4`, `dx-5`, `dx-6`,
+       dx1, dx2, dx3, dx4, dx5, dx6, dx7:
+      dx
+    of `e+`, `e+1`, `e+2`, `e+3`, `e+4`, `e+5`, `e+6`,
+       `e-`, `e-1`, `e-2`, `e-3`, `e-4`, `e-5`, `e-6`,
+       e1, e2, e3, e4, e5, e6, e7:
+      e
+    of `f+`, `f+1`, `f+2`, `f+3`, `f+4`, `f+5`, `f+6`,
+       `f-`, `f-1`, `f-2`, `f-3`, `f-4`, `f-5`, `f-6`,
+       f1, f2, f3, f4, f5, f6, f7:
+      f
+    of `fx+`, `fx+1`, `fx+2`, `fx+3`, `fx+4`, `fx+5`, `fx+6`,
+       `fx-`, `fx-1`, `fx-2`, `fx-3`, `fx-4`, `fx-5`, `fx-6`,
+       fx1, fx2, fx3, fx4, fx5, fx6, fx7:
+      fx
+    of `g+`, `g+1`, `g+2`, `g+3`, `g+4`, `g+5`, `g+6`,
+       `g-`, `g-1`, `g-2`, `g-3`, `g-4`, `g-5`, `g-6`,
+       g1, g2, g3, g4, g5, g6, g7:
+      g
+    of `gx+`, `gx+1`, `gx+2`, `gx+3`, `gx+4`, `gx+5`, `gx+6`,
+       `gx-`, `gx-1`, `gx-2`, `gx-3`, `gx-4`, `gx-5`, `gx-6`,
+       gx1, gx2, gx3, gx4, gx5, gx6, gx7:
+      gx
+    of `a+`, `a+1`, `a+2`, `a+3`, `a+4`, `a+5`, `a+6`,
+       `a-`, `a-1`, `a-2`, `a-3`, `a-4`, `a-5`, `a-6`,
+       a1, a2, a3, a4, a5, a6, a7:
+      a
+    of `ax+`, `ax+1`, `ax+2`, `ax+3`, `ax+4`, `ax+5`, `ax+6`,
+       `ax-`, `ax-1`, `ax-2`, `ax-3`, `ax-4`, `ax-5`, `ax-6`,
+       ax1, ax2, ax3, ax4, ax5, ax6, ax7:
+      ax
+    of `b+`, `b+1`, `b+2`, `b+3`, `b+4`, `b+5`, `b+6`,
+       `b-`, `b-1`, `b-2`, `b-3`, `b-4`, `b-5`, `b-6`,
+       b1, b2, b3, b4, b5, b6, b7:
+      b
+
+proc getOctave(ctx: Context, note: Note): range[1..7] =
+  case note:
+    of c, cx, d, dx, e, f, fx, g, gx, a, ax, b, r:
+      ctx.octave
+    of `c+`, `cx+`, `d+`, `dx+`, `e+`, `f+`, `fx+`, `g+`, `gx+`, `a+`, `ax+`, `b+`,
+       `c+1`, `cx+1`, `d+1`, `dx+1`, `e+1`, `f+1`, `fx+1`, `g+1`, `gx+1`, `a+1`, `ax+1`, `b+1`:
+      ctx.octave + 1
+    of `c+2`, `cx+2`, `d+2`, `dx+2`, `e+2`, `f+2`, `fx+2`, `g+2`, `gx+2`, `a+2`, `ax+2`, `b+2`:
+      ctx.octave + 2
+    of `c+3`, `cx+3`, `d+3`, `dx+3`, `e+3`, `f+3`, `fx+3`, `g+3`, `gx+3`, `a+3`, `ax+3`, `b+3`:
+      ctx.octave + 3
+    of `c+4`, `cx+4`, `d+4`, `dx+4`, `e+4`, `f+4`, `fx+4`, `g+4`, `gx+4`, `a+4`, `ax+4`, `b+4`:
+      ctx.octave + 4
+    of `c+5`, `cx+5`, `d+5`, `dx+5`, `e+5`, `f+5`, `fx+5`, `g+5`, `gx+5`, `a+5`, `ax+5`, `b+5`:
+      ctx.octave + 5
+    of `c+6`, `cx+6`, `d+6`, `dx+6`, `e+6`, `f+6`, `fx+6`, `g+6`, `gx+6`, `a+6`, `ax+6`, `b+6`:
+      ctx.octave + 6
+    of `c-`, `cx-`, `d-`, `dx-`, `e-`, `f-`, `fx-`, `g-`, `gx-`, `a-`, `ax-`, `b-`,
+       `c-1`, `cx-1`, `d-1`, `dx-1`, `e-1`, `f-1`, `fx-1`, `g-1`, `gx-1`, `a-1`, `ax-1`, `b-1`:
+      ctx.octave - 1
+    of `c-2`, `cx-2`, `d-2`, `dx-2`, `e-2`, `f-2`, `fx-2`, `g-2`, `gx-2`, `a-2`, `ax-2`, `b-2`:
+      ctx.octave - 2
+    of `c-3`, `cx-3`, `d-3`, `dx-3`, `e-3`, `f-3`, `fx-3`, `g-3`, `gx-3`, `a-3`, `ax-3`, `b-3`:
+      ctx.octave - 3
+    of `c-4`, `cx-4`, `d-4`, `dx-4`, `e-4`, `f-4`, `fx-4`, `g-4`, `gx-4`, `a-4`, `ax-4`, `b-4`:
+      ctx.octave - 4
+    of `c-5`, `cx-5`, `d-5`, `dx-5`, `e-5`, `f-5`, `fx-5`, `g-5`, `gx-5`, `a-5`, `ax-5`, `b-5`:
+      ctx.octave - 5
+    of `c-6`, `cx-6`, `d-6`, `dx-6`, `e-6`, `f-6`, `fx-6`, `g-6`, `gx-6`, `a-6`, `ax-6`, `b-6`:
+      ctx.octave - 6
+    of c1, cx1, d1, dx1, e1, f1, fx1, g1, gx1, a1, ax1, b1:
+      1
+    of c2, cx2, d2, dx2, e2, f2, fx2, g2, gx2, a2, ax2, b2:
+      2
+    of c3, cx3, d3, dx3, e3, f3, fx3, g3, gx3, a3, ax3, b3:
+      3
+    of c4, cx4, d4, dx4, e4, f4, fx4, g4, gx4, a4, ax4, b4:
+      4
+    of c5, cx5, d5, dx5, e5, f5, fx5, g5, gx5, a5, ax5, b5:
+      5
+    of c6, cx6, d6, dx6, e6, f6, fx6, g6, gx6, a6, ax6, b6:
+      6
+    of c7, cx7, d7, dx7, e7, f7, fx7, g7, gx7, a7, ax7, b7:
+      7
+
 proc parse(ctx: var Context, note: Note) =
   if ctx.instrument == none:
     raise newException(Exception, $ note & " note cannot be played without an instrument")
+  let
+    realNote = getNote(note)
+    octave = getOctave(ctx, note)
   ctx.events.add(Event(
     kind: On,
-    note: note,
+    note: realNote,
     time: ctx.time,
     instrument: ctx.instrument,
-    octave: ctx.octave,
+    octave: octave,
     length: ctx.length,
   ))
   ctx.events.add(Event(
     kind: Off,
-    note: note,
+    note: realNote,
     time: ctx.time + ctx.length,
     instrument: ctx.instrument,
-    octave: ctx.octave,
+    octave: octave,
     length: ctx.length,
   ))
   ctx.time += ctx.length
