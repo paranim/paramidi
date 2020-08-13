@@ -196,6 +196,7 @@ type
     time: float
     instrument: Instrument
     octave: range[1..7]
+    tempo: int
   Mode* = enum
     sequential, concurrent,
   Context = object
@@ -203,6 +204,7 @@ type
     time: float
     instrument: Instrument
     octave: range[1..7]
+    tempo: int
     length: float
     play: bool
     mode: Mode
@@ -322,6 +324,7 @@ proc parse(ctx: var Context, note: Note) =
     time: ctx.time,
     instrument: ctx.instrument,
     octave: octave,
+    tempo: ctx.tempo,
   ))
   ctx.events.add(Event(
     kind: Off,
@@ -329,6 +332,7 @@ proc parse(ctx: var Context, note: Note) =
     time: ctx.time + ctx.length,
     instrument: ctx.instrument,
     octave: octave,
+    tempo: ctx.tempo,
   ))
   ctx.time += ctx.length
 
@@ -358,6 +362,8 @@ proc parse(ctx: var Context, content: tuple) =
       ctx.play = v
     elif k == "mode":
       ctx.mode = v
+    elif k == "tempo":
+      ctx.tempo = v
     else:
       let mode = temp.mode
       parse(temp, v)
@@ -382,6 +388,7 @@ proc parse*(content: tuple): seq[Event] =
     length: 1/4,
     play: true,
     mode: sequential,
+    tempo: 120,
   )
   parse(ctx, content)
   result = ctx.events
@@ -400,7 +407,6 @@ proc render*[T: cshort](events: seq[Event], soundFont: ptr tsf, sampleRate: int)
     scaleCount = 12
     minuteSecs = 60
     quarterNote = 1/4
-    defaultTempo = 120
   for event in events:
     let note = cint(event.note.ord + event.octave.ord * scaleCount + scaleCount)
     case event.kind:
@@ -411,7 +417,7 @@ proc render*[T: cshort](events: seq[Event], soundFont: ptr tsf, sampleRate: int)
         let
           currentSize = result.data.len
           noteLength = event.time - lastRenderTime
-          noteLengthSeconds = (minuteSecs / defaultTempo) * (noteLength / quarterNote)
+          noteLengthSeconds = (minuteSecs / event.tempo) * (noteLength / quarterNote)
           numSamples = sampleRate.float * noteLengthSeconds
           newSize = currentSize + numSamples.int
         if noteLength > 0:
