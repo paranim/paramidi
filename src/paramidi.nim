@@ -195,15 +195,20 @@ proc parse(ctx: var Context, note: Note) =
 proc parse(ctx: var Context, instrument: Instrument) =
   ctx.instrument = instrument
 
-proc parse(ctx: var Context, t: tuple) =
+proc parseLength(ctx: var Context, length: float) =
+  ctx.length = length
+
+proc parseLength(ctx: var Context, length: int) =
+  ctx.length = length.float
+
+proc parse(ctx: var Context, length: float | int) =
+  parseLength(ctx, length)
+
+proc parse(ctx: var Context, content: tuple) =
   var temp = ctx
-  for k, v in t.fieldPairs:
+  for k, v in content.fieldPairs:
     when k == "length":
-      ctx.length =
-        when v is int:
-          v.float
-        else:
-          v
+      parseLength(ctx, v)
     elif k == "octave":
       ctx.octave = v
     else:
