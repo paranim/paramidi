@@ -64,6 +64,7 @@ when isMainModule:
   var
     data = newSeq[cshort]()
     lastRenderTime = 0.0
+    totalTime = 0.0
   const scaleCount = 12
   for event in events:
     let note = cint(event.note.ord + event.octave.ord * scaleCount + scaleCount)
@@ -84,6 +85,6 @@ when isMainModule:
         tsf_render_short(sf, data[currentSize].addr, numSamples.cint, 0)
         tsf_note_off(sf, event.instrument.ord.cint, note)
         lastRenderTime = event.time
+        totalTime += noteLengthSeconds
   writeFile("output.wav", data, data.len.uint)
-  let totalTime = (minuteSecs / defaultTempo) * (lastRenderTime / quarterNote)
   playFile("output.wav", int(totalTime * 1000f))
