@@ -53,9 +53,9 @@ proc writeFile(filename: string, data: var openArray[cshort], numSamples: uint) 
   discard drwav_uninit(wav.addr)
 
 when isMainModule:
-  var sf = tsf_load_filename(paramidi_soundfonts.getSoundFontPath("aspirin.sf2"))
+  var sf = tsf_load_filename(paramidi_soundfonts.getSoundFontPath("generaluser.sf2"))
   # if you want to embed the soundfont in the binary, do this instead:
-  #const soundfont = staticRead("paramidi_soundfonts/aspirin.sf2")
+  #const soundfont = staticRead("paramidi_soundfonts/generaluser.sf2")
   #var sf = tsf_load_memory(soundfont.cstring, soundfont.len.cint)
   tsf_set_output(sf, TSF_MONO, sampleRate, 0) #sample rate
   let
