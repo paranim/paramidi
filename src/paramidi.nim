@@ -152,17 +152,14 @@ type
     applause,
     gun_shot,
   EventKind* = enum
-    Single, On, Off,
+    On, Off,
   Event = object
+    kind*: EventKind
     note*: Note
     time*: float
     instrument*: Instrument
     octave*: range[1..7]
-    case kind*: EventKind
-      of Single:
-        length*: float
-      else:
-        nil
+    length*: float
   Context = object
     events: seq[Event]
     time: float
@@ -173,15 +170,22 @@ type
 proc parse(ctx: var Context, note: Note) =
   if ctx.instrument == none:
     raise newException(Exception, $ note & " note cannot be played without an instrument")
-  let event = Event(
-    kind: Single,
+  ctx.events.add(Event(
+    kind: On,
     note: note,
     time: ctx.time,
     instrument: ctx.instrument,
     octave: ctx.octave,
     length: ctx.length,
-  )
-  ctx.events.add(event)
+  ))
+  ctx.events.add(Event(
+    kind: Off,
+    note: note,
+    time: ctx.time + ctx.length,
+    instrument: ctx.instrument,
+    octave: ctx.octave,
+    length: ctx.length,
+  ))
   ctx.time += ctx.length
 
 proc parse(ctx: var Context, instrument: Instrument) =
@@ -200,33 +204,6 @@ proc parse(ctx: var Context, t: tuple) =
     else:
       parse(ctx, v)
 
-proc splitEvents(events: var seq[Event]): seq[Event] =
-  for event in events:
-    var e1 = Event(
-      kind: On,
-      note: event.note,
-      time: event.time,
-      instrument: event.instrument,
-      octave: event.octave,
-    )
-    var e2 = Event(
-      kind: Off,
-      note: event.note,
-      time: event.time + event.length,
-      instrument: event.instrument,
-      octave: event.octave,
-    )
-    result.add(e1)
-    result.add(e2)
-  algorithm.sort(result, proc (x, y: Event): int =
-    if x.time < y.time:
-      -1
-    elif x.time > y.time:
-      1
-    else:
-      0
-  )
-
 proc parse*(content: tuple): seq[Event] =
   var ctx = Context(
     time: 0,
@@ -235,4 +212,12 @@ proc parse*(content: tuple): seq[Event] =
     length: 1/4,
   )
   parse(ctx, content)
-  splitEvents(ctx.events)
+  result = ctx.events
+  algorithm.sort(result, proc (x, y: Event): int =
+    if x.time < y.time:
+      -1
+    elif x.time > y.time:
+      1
+    else:
+      0
+  )

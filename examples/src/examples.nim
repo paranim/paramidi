@@ -69,8 +69,6 @@ when isMainModule:
   for event in events:
     let note = cint(event.note.ord + event.octave.ord * scaleCount + scaleCount)
     case event.kind:
-      of Single:
-        raise newException(Exception, "Invalid event")
       of On:
         tsf_note_on(sf, event.instrument.ord.cint, note, 1.0f)
       of Off:
