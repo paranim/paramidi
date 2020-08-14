@@ -51,5 +51,5 @@ The fastest way to get started is by cloning the [starter project](https://githu
 
 # to play two instruments concurrently, set the "mode" attribute
 ((mode: concurrent),
- (banjo, (octave: 3), 1/16, b, `c+`, 1/8, `d+`, b, `c+`, a, b, g, a),
+ (banjo, (octave: 3), 1/16, b, +c, 1/8, +d, b, +c, a, b, g, a),
  (guitar, (octave: 3), 1/16, r, r, 1/8, g, r, d, r, g, g, d)) # the r means rest
