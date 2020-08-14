@@ -310,6 +310,242 @@ proc getOctave(ctx: Context, note: Note): range[1..7] =
     of c7, cx7, d7, dx7, e7, f7, fx7, g7, gx7, a7, ax7, b7:
       7
 
+proc `+`*(note: Note): Note =
+  case note:
+    of c: `c+`
+    of cx: `cx+`
+    of d: `d+`
+    of dx: `dx+`
+    of e: `e+`
+    of f: `f+`
+    of fx: `fx+`
+    of g: `g+`
+    of gx: `gx+`
+    of a: `a+`
+    of ax: `ax+`
+    of b: `b+`
+    else:
+      raise newException(Exception, $ note & " note cannot use +")
+
+proc `-`*(note: Note): Note =
+  case note:
+    of c: `c-`
+    of cx: `cx-`
+    of d: `d-`
+    of dx: `dx-`
+    of e: `e-`
+    of f: `f-`
+    of fx: `fx-`
+    of g: `g-`
+    of gx: `gx-`
+    of a: `a-`
+    of ax: `ax-`
+    of b: `b-`
+    else:
+      raise newException(Exception, $ note & " note cannot use -")
+
+proc `+`*(note: Note, octave: range[1..6]): Note =
+  case note:
+    of c:
+      case octave:
+        of 1: `c+1`
+        of 2: `c+2`
+        of 3: `c+3`
+        of 4: `c+4`
+        of 5: `c+5`
+        of 6: `c+6`
+    of cx:
+      case octave:
+        of 1: `cx+1`
+        of 2: `cx+2`
+        of 3: `cx+3`
+        of 4: `cx+4`
+        of 5: `cx+5`
+        of 6: `cx+6`
+    of d:
+      case octave:
+        of 1: `d+1`
+        of 2: `d+2`
+        of 3: `d+3`
+        of 4: `d+4`
+        of 5: `d+5`
+        of 6: `d+6`
+    of dx:
+      case octave:
+        of 1: `dx+1`
+        of 2: `dx+2`
+        of 3: `dx+3`
+        of 4: `dx+4`
+        of 5: `dx+5`
+        of 6: `dx+6`
+    of e:
+      case octave:
+        of 1: `e+1`
+        of 2: `e+2`
+        of 3: `e+3`
+        of 4: `e+4`
+        of 5: `e+5`
+        of 6: `e+6`
+    of f:
+      case octave:
+        of 1: `f+1`
+        of 2: `f+2`
+        of 3: `f+3`
+        of 4: `f+4`
+        of 5: `f+5`
+        of 6: `f+6`
+    of fx:
+      case octave:
+        of 1: `fx+1`
+        of 2: `fx+2`
+        of 3: `fx+3`
+        of 4: `fx+4`
+        of 5: `fx+5`
+        of 6: `fx+6`
+    of g:
+      case octave:
+        of 1: `g+1`
+        of 2: `g+2`
+        of 3: `g+3`
+        of 4: `g+4`
+        of 5: `g+5`
+        of 6: `g+6`
+    of gx:
+      case octave:
+        of 1: `gx+1`
+        of 2: `gx+2`
+        of 3: `gx+3`
+        of 4: `gx+4`
+        of 5: `gx+5`
+        of 6: `gx+6`
+    of a:
+      case octave:
+        of 1: `a+1`
+        of 2: `a+2`
+        of 3: `a+3`
+        of 4: `a+4`
+        of 5: `a+5`
+        of 6: `a+6`
+    of ax:
+      case octave:
+        of 1: `ax+1`
+        of 2: `ax+2`
+        of 3: `ax+3`
+        of 4: `ax+4`
+        of 5: `ax+5`
+        of 6: `ax+6`
+    of b:
+      case octave:
+        of 1: `b+1`
+        of 2: `b+2`
+        of 3: `b+3`
+        of 4: `b+4`
+        of 5: `b+5`
+        of 6: `b+6`
+    else:
+      raise newException(Exception, $ note & " note cannot use +")
+
+proc `-`*(note: Note, octave: range[1..6]): Note =
+  case note:
+    of c:
+      case octave:
+        of 1: `c-1`
+        of 2: `c-2`
+        of 3: `c-3`
+        of 4: `c-4`
+        of 5: `c-5`
+        of 6: `c-6`
+    of cx:
+      case octave:
+        of 1: `cx-1`
+        of 2: `cx-2`
+        of 3: `cx-3`
+        of 4: `cx-4`
+        of 5: `cx-5`
+        of 6: `cx-6`
+    of d:
+      case octave:
+        of 1: `d-1`
+        of 2: `d-2`
+        of 3: `d-3`
+        of 4: `d-4`
+        of 5: `d-5`
+        of 6: `d-6`
+    of dx:
+      case octave:
+        of 1: `dx-1`
+        of 2: `dx-2`
+        of 3: `dx-3`
+        of 4: `dx-4`
+        of 5: `dx-5`
+        of 6: `dx-6`
+    of e:
+      case octave:
+        of 1: `e-1`
+        of 2: `e-2`
+        of 3: `e-3`
+        of 4: `e-4`
+        of 5: `e-5`
+        of 6: `e-6`
+    of f:
+      case octave:
+        of 1: `f-1`
+        of 2: `f-2`
+        of 3: `f-3`
+        of 4: `f-4`
+        of 5: `f-5`
+        of 6: `f-6`
+    of fx:
+      case octave:
+        of 1: `fx-1`
+        of 2: `fx-2`
+        of 3: `fx-3`
+        of 4: `fx-4`
+        of 5: `fx-5`
+        of 6: `fx-6`
+    of g:
+      case octave:
+        of 1: `g-1`
+        of 2: `g-2`
+        of 3: `g-3`
+        of 4: `g-4`
+        of 5: `g-5`
+        of 6: `g-6`
+    of gx:
+      case octave:
+        of 1: `gx-1`
+        of 2: `gx-2`
+        of 3: `gx-3`
+        of 4: `gx-4`
+        of 5: `gx-5`
+        of 6: `gx-6`
+    of a:
+      case octave:
+        of 1: `a-1`
+        of 2: `a-2`
+        of 3: `a-3`
+        of 4: `a-4`
+        of 5: `a-5`
+        of 6: `a-6`
+    of ax:
+      case octave:
+        of 1: `ax-1`
+        of 2: `ax-2`
+        of 3: `ax-3`
+        of 4: `ax-4`
+        of 5: `ax-5`
+        of 6: `ax-6`
+    of b:
+      case octave:
+        of 1: `b-1`
+        of 2: `b-2`
+        of 3: `b-3`
+        of 4: `b-4`
+        of 5: `b-5`
+        of 6: `b-6`
+    else:
+      raise newException(Exception, $ note & " note cannot use -")
+
 proc compile(ctx: var Context, note: Note) =
   if not ctx.play:
     return

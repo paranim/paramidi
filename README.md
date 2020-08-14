@@ -29,25 +29,25 @@ The fastest way to get started is by cloning the [starter project](https://githu
 # you have to change note lengths often so here's a shorthand
 (piano, (octave: 3), c, d, (octave: 4), 1/2, e, f)
 
-# you can change individual notes' relative octave with + or - after
-(piano, (octave: 3), c, d, 1/2, `e+`, `f+`)
+# you can change individual notes' relative octave with + or - before
+(piano, (octave: 3), c, d, 1/2, +e, +f)
 
 # a number following the + or - changes it by that many octaves
-(piano, (octave: 3), c, d, 1/2, `e+2`, `f+2`)
+(piano, (octave: 3), c, d, 1/2, e+2, f+2)
 
 # if there is no + or - before the number, it sets the note's absolute octave
 (piano, (octave: 3), c, d, 1/2, e2, f2)
 
 # with all that, we can write the first line of dueling banjos
-(guitar, (octave: 3), 1/8, b, `c+`, 1/4, `d+`, b, `c+`, a, b, g, a)
+(guitar, (octave: 3), 1/8, b, +c, 1/4, +d, b, +c, a, b, g, a)
 
 # chords are just notes in a set
 (piano, {c, e})
 
 # you can change the length of chords just like single notes
 (guitar, (octave: 4),
-  1/8, {d, `b-`, `g-`}, {d, `b-`, `g-`},
-  1/4, {d, `b-`, `g-`}, {e, c, `g-`}, {d, `b-`, `g-`})
+  1/8, {d, -b, -g}, {d, -b, -g},
+  1/4, {d, -b, -g}, {e, c, -g}, {d, -b, -g})
 
 # to play two instruments concurrently, set the "mode" attribute
 ((mode: concurrent),
