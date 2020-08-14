@@ -7,6 +7,7 @@ The fastest way to get started is by cloning the [starter project](https://githu
 ## Documentation
 
 * Check out the `examples` dir
+* Watch the screencast: https://www.youtube.com/watch?v=k3B5mhHbcK0
 * Look at this commented example:
 
 ```nim
