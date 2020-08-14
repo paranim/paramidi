@@ -200,7 +200,7 @@ type
   Mode* = enum
     sequential, concurrent,
   Context = object
-    events: seq[Event]
+    events: ref seq[Event]
     time: float
     instrument: Instrument
     octave: range[1..7]
@@ -318,7 +318,7 @@ proc compile(ctx: var Context, note: Note) =
   let
     realNote = getNote(note)
     octave = getOctave(ctx, note)
-  ctx.events.add(Event(
+  ctx.events[].add(Event(
     kind: On,
     note: realNote,
     time: ctx.time,
@@ -326,7 +326,7 @@ proc compile(ctx: var Context, note: Note) =
     octave: octave,
     tempo: ctx.tempo,
   ))
-  ctx.events.add(Event(
+  ctx.events[].add(Event(
     kind: Off,
     note: realNote,
     time: ctx.time + ctx.length,
@@ -383,7 +383,6 @@ proc compile(ctx: var Context, content: tuple) =
         if temp.time > longestTime:
           longestTime = temp.time
         temp.time = ctx.time
-  ctx.events = temp.events
   if concurrent:
     ctx.time = longestTime
   else:
@@ -399,8 +398,9 @@ proc compile*(content: tuple): seq[Event] =
     mode: sequential,
     tempo: 120,
   )
+  new ctx.events
   compile(ctx, content)
-  result = ctx.events
+  result = ctx.events[]
   algorithm.sort(result, proc (x, y: Event): int =
     if x.time < y.time:
       -1
