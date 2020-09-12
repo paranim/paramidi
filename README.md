@@ -1,4 +1,4 @@
-A Nim library for making MIDI music. It uses [TinySoundFont](https://github.com/schellingb/TinySoundFont) underneath. A musical score is modelled as a simple hierarchy of tuples. There are probably bugs...or maybe your music just sounds bad. It could be that. Think about it.
+A Nim library for making MIDI music. It uses [TinySoundFont](https://github.com/schellingb/TinySoundFont) underneath. A musical score is modeled as a simple hierarchy of tuples. There are probably bugs...or maybe your music just sounds bad. It could be that. Think about it.
 
 ## Quick start
 
