@@ -5,7 +5,7 @@ author        = "oakes"
 description   = "Paramidi examples"
 license       = "Public Domain"
 srcDir        = "src"
-bin           = @["dueling_banjos", "aeriths_theme", "undone_in_sorrow"]
+bin           = @["dueling_banjos", "aeriths_theme", "undone_in_sorrow", "missouri_borderland"]
 
 
 # Dependencies
