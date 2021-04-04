@@ -188,15 +188,15 @@ type
     helicopter,
     applause,
     gun_shot,
-  EventKind = enum
+  EventKind* = enum
     On, Off,
-  Event = object
-    kind: EventKind
-    note: Note
-    time: float
-    instrument: Instrument
-    octave: range[1..7]
-    tempo: int
+  Event* = object
+    kind*: EventKind
+    note*: Note
+    time*: float
+    instrument*: Instrument
+    octave*: range[1..7]
+    tempo*: int
   Mode* = enum
     sequential, concurrent,
   Context = object
@@ -590,7 +590,10 @@ proc setLength(ctx: var Context, length: float) =
 proc setLength(ctx: var Context, length: int) =
   ctx.length = length.float
 
-proc compile(ctx: var Context, length: float | int) =
+proc setLength(ctx: var Context, length: BiggestInt) =
+  ctx.length = length.float
+
+proc compile(ctx: var Context, length: float | int | BiggestInt) =
   setLength(ctx, length)
 
 proc compile(ctx: var Context, content: tuple) =
@@ -624,7 +627,9 @@ proc compile(ctx: var Context, content: tuple) =
   else:
     ctx.time = temp.time
 
-proc compile*(content: tuple): seq[Event] =
+include paramidi/json
+
+proc compile*(content: tuple | JsonNode): seq[Event] =
   var ctx = Context(
     time: 0,
     instrument: none,

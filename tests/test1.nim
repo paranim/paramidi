@@ -1,5 +1,5 @@
 import unittest
-import paramidi/tsf
+import paramidi, paramidi/tsf
 
 test "load soundfont":
   var sf = tsf_load_filename("../paramidi_soundfonts/src/paramidi_soundfonts/aspirin.sf2")
@@ -7,3 +7,44 @@ test "load soundfont":
   tsf_note_on(sf, 0, 60, 1.0f) #preset 0, middle C
   var halfSecond: array[22050, cshort] # synthesize 0.5 seconds
   tsf_render_short(sf, cast[ptr cshort](halfSecond.addr), halfSecond.len.cint, 0)
+
+from algorithm import nil
+
+proc sortEvents(events: var seq[Event]) =
+  # since the order of notes in a chord can be unpredictable,
+  # the only way we can compare the outputs below is by
+  # sorting them so the result is deterministic
+  algorithm.sort(events, proc (x, y: Event): int =
+    if x.time < y.time:
+      -1
+    elif x.time > y.time:
+      1
+    elif x.note.ord < y.note.ord:
+      -1
+    elif x.note.ord > y.note.ord:
+      1
+    else:
+      0
+  )
+
+import json
+
+test "JSON simple":
+  var
+    score1 = compile((piano, 1/4, c, 2, d))
+    score2 = compile(%*["piano", 1/4, "c", 2, "d"])
+  score1.sortEvents
+  score2.sortEvents
+  check score1 == score2
+
+from dueling_banjos import nil
+from dueling_banjos_json import nil
+
+test "JSON dueling banjos":
+  var
+    score1 = compile(dueling_banjos.score)
+    score2 = compile(dueling_banjos_json.score)
+  score1.sortEvents
+  score2.sortEvents
+  check score1 == score2
+
