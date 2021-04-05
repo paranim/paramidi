@@ -6,9 +6,9 @@ proc compile*(ctx: var Context, node: JsonNode) =
     if noteSet.contains(node.str):
       compile(ctx, Note(notes.find(node.str)))
     elif instruments.contains(node.str):
-      compile(ctx, Instrument(instruments.find(node.str) - 1))
+      compile(ctx, Instrument(instruments.find(node.str)))
     else:
-      raise newException(Exception, "Invalid value: " & $node)
+      raise newException(Exception, "Invalid value: " & $node & " (expected a note or instrument)")
   of JInt:
     compile(ctx, node.num)
   of JFloat:
