@@ -203,7 +203,8 @@ type
     sequential, concurrent,
   Context* = object
     events*: ref seq[Event]
-    time*: float
+    time*: float # total length of all notes
+    seconds*: float # total number of seconds
     instrument*: Instrument
     octave*: range[1..7]
     tempo*: int
@@ -719,13 +720,29 @@ proc compile*(ctx: var Context, content: tuple | JsonNode): seq[Event] =
     else:
       0
   )
+  # calculate the total time in seconds
+  var lastTime = 0.0
+  ctx.seconds = 0
+  const
+    minuteSecs = 60
+    quarterNote = 1/4
+  for event in result:
+    case event.kind:
+      of On:
+        discard
+      of Off:
+        let
+          noteLength = event.time - lastTime
+          noteLengthSeconds = (minuteSecs / event.tempo) * (noteLength / quarterNote)
+        lastTime = event.time
+        ctx.seconds += noteLengthSeconds
 
 proc compile*(content: tuple | JsonNode): seq[Event] =
   var ctx = initContext()
   compile(ctx, content)
 
 proc render*[T: cshort](events: seq[Event], soundFont: ptr tsf, sampleRate: int): RenderResult[T] =
-  var lastRenderTime = 0.0
+  var lastTime = 0.0
   const
     scaleCount = 12
     minuteSecs = 60
@@ -739,7 +756,7 @@ proc render*[T: cshort](events: seq[Event], soundFont: ptr tsf, sampleRate: int)
       of Off:
         let
           currentSize = result.data.len
-          noteLength = event.time - lastRenderTime
+          noteLength = event.time - lastTime
           noteLengthSeconds = (minuteSecs / event.tempo) * (noteLength / quarterNote)
           numSamples = sampleRate.float * noteLengthSeconds
           newSize = currentSize + numSamples.int
@@ -749,5 +766,5 @@ proc render*[T: cshort](events: seq[Event], soundFont: ptr tsf, sampleRate: int)
             tsf_render_short(soundFont, result.data[currentSize].addr, numSamples.cint, 0)
         if event.note != r:
           tsf_note_off(soundFont, event.instrument.ord.cint, note)
-        lastRenderTime = event.time
+        lastTime = event.time
         result.seconds += noteLengthSeconds
