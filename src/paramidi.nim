@@ -201,15 +201,15 @@ type
     tempo*: int
   Mode* = enum
     sequential, concurrent,
-  Context = object
-    events: ref seq[Event]
-    time: float
-    instrument: Instrument
-    octave: range[1..7]
-    tempo: int
-    length: float
-    play: bool
-    mode: Mode
+  Context* = object
+    events*: ref seq[Event]
+    time*: float
+    instrument*: Instrument
+    octave*: range[1..7]
+    tempo*: int
+    length*: float
+    play*: bool
+    mode*: Mode
   RenderResult*[T] = object
     data*: seq[T]
     seconds*: float
@@ -548,7 +548,7 @@ proc `-`*(note: Note, octave: range[1..6]): Note =
     else:
       raise newException(Exception, $ note & " note cannot use -")
 
-proc compile(ctx: var Context, note: Note) =
+proc compileContent(ctx: var Context, note: Note) =
   if not ctx.play:
     return
   if ctx.instrument == none and note != r:
@@ -574,16 +574,16 @@ proc compile(ctx: var Context, note: Note) =
   ))
   ctx.time += ctx.length
 
-proc compile(ctx: var Context, chord: set[Note]) =
+proc compileContent(ctx: var Context, chord: set[Note]) =
   if not ctx.play:
     return
   let time = ctx.time
   for note in chord:
-    compile(ctx, note)
+    compileContent(ctx, note)
     ctx.time = time
   ctx.time += ctx.length
 
-proc compile(ctx: var Context, instrument: Instrument) =
+proc compileContent(ctx: var Context, instrument: Instrument) =
   ctx.instrument = instrument
 
 proc setLength(ctx: var Context, length: float) =
@@ -595,10 +595,10 @@ proc setLength(ctx: var Context, length: int) =
 proc setLength(ctx: var Context, length: BiggestInt) =
   ctx.length = length.float
 
-proc compile(ctx: var Context, length: float | int | BiggestInt) =
+proc compileContent(ctx: var Context, length: float | int | BiggestInt) =
   setLength(ctx, length)
 
-proc compile(ctx: var Context, content: tuple) =
+proc compileContent(ctx: var Context, content: tuple) =
   var
     temp = ctx
     concurrent = false
@@ -616,7 +616,7 @@ proc compile(ctx: var Context, content: tuple) =
       ctx.tempo = v
     else:
       let mode = temp.mode
-      compile(temp, v)
+      compileContent(temp, v)
       if mode != temp.mode and temp.mode == Mode.concurrent:
         concurrent = true
         temp.mode = Mode.sequential
@@ -629,19 +629,19 @@ proc compile(ctx: var Context, content: tuple) =
   else:
     ctx.time = temp.time
 
-proc compile*(ctx: var Context, node: JsonNode) =
+proc compileContent(ctx: var Context, node: JsonNode) =
   case node.kind:
   of JString:
     if constants.noteSet.contains(node.str):
-      compile(ctx, Note(constants.notes.find(node.str)))
+      compileContent(ctx, Note(constants.notes.find(node.str)))
     elif constants.instruments.contains(node.str):
-      compile(ctx, Instrument(constants.instruments.find(node.str)))
+      compileContent(ctx, Instrument(constants.instruments.find(node.str)))
     else:
       raise newException(Exception, "Invalid value: " & $node & " (expected a note or instrument)")
   of JInt:
-    compile(ctx, node.num)
+    compileContent(ctx, node.num)
   of JFloat:
-    compile(ctx, node.fnum)
+    compileContent(ctx, node.fnum)
   of JBool, JNull:
     raise newException(Exception, "Invalid value: " & $node)
   of JObject:
@@ -683,7 +683,7 @@ proc compile*(ctx: var Context, node: JsonNode) =
       longestTime = ctx.time
     for item in node:
       let mode = temp.mode
-      compile(temp, item)
+      compileContent(temp, item)
       if mode != temp.mode and temp.mode == Mode.concurrent:
         concurrent = true
         temp.mode = Mode.sequential
@@ -696,8 +696,8 @@ proc compile*(ctx: var Context, node: JsonNode) =
     else:
       ctx.time = temp.time
 
-proc compile*(content: tuple | JsonNode): seq[Event] =
-  var ctx = Context(
+proc initContext*(): Context =
+  result = Context(
     time: 0,
     instrument: none,
     octave: 4,
@@ -706,8 +706,10 @@ proc compile*(content: tuple | JsonNode): seq[Event] =
     mode: sequential,
     tempo: 120,
   )
-  new ctx.events
-  compile(ctx, content)
+  new result.events
+
+proc compile*(ctx: var Context, content: tuple | JsonNode): seq[Event] =
+  compileContent(ctx, content)
   result = ctx.events[]
   algorithm.sort(result, proc (x, y: Event): int =
     if x.time < y.time:
@@ -717,6 +719,10 @@ proc compile*(content: tuple | JsonNode): seq[Event] =
     else:
       0
   )
+
+proc compile*(content: tuple | JsonNode): seq[Event] =
+  var ctx = initContext()
+  compile(ctx, content)
 
 proc render*[T: cshort](events: seq[Event], soundFont: ptr tsf, sampleRate: int): RenderResult[T] =
   var lastRenderTime = 0.0
