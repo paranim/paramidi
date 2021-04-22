@@ -51,3 +51,13 @@ test "JSON dueling banjos":
   score2.sortEvents
   check score1 == score2
 
+test "relative octaves":
+  var
+    score1 = compile((piano, c, (octave: 3), d, (octave: 5), e))
+    score2 = compile((piano, c, (octave: `-1`), d, (octave: `+2`), e))
+    score3 = compile(%*["piano", "c", {"octave": "-1"}, "d", {"octave": "+2"}, "e"])
+  score1.sortEvents
+  score2.sortEvents
+  score3.sortEvents
+  check score1 == score2
+  check score1 == score3

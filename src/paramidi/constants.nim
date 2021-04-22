@@ -187,7 +187,12 @@ const
     "applause",
     "gun-shot",
   ]
+  relativeOctaves* = [
+    "+1", "+2", "+3", "+4", "+5", "+6",
+    "-1", "-2", "-3", "-4", "-5", "-6",
+  ]
   modes* = ["sequential", "concurrent"]
   noteSet* = notes.toHashSet
   instrumentSet* = instruments.toHashSet
   modeSet* = modes.toHashSet
+  relativeOctaveSet* = relativeOctaves.toHashSet

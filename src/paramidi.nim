@@ -190,6 +190,9 @@ type
     helicopter,
     applause,
     gun_shot,
+  RelativeOctave* = enum
+    `+1`, `+2`, `+3`, `+4`, `+5`, `+6`,
+    `-1`, `-2`, `-3`, `-4`, `-5`, `-6`,
   EventKind* = enum
     On, Off,
   Event* = object
@@ -312,6 +315,21 @@ proc getOctave(ctx: Context, note: Note): range[1..7] =
       6
     of c7, cx7, d7, dx7, e7, f7, fx7, g7, gx7, a7, ax7, b7:
       7
+
+proc getOctave(ctx: Context, relOctave: RelativeOctave): range[1..7] =
+  case relOctave:
+    of `+1`: ctx.octave + 1
+    of `+2`: ctx.octave + 2
+    of `+3`: ctx.octave + 3
+    of `+4`: ctx.octave + 4
+    of `+5`: ctx.octave + 5
+    of `+6`: ctx.octave + 6
+    of `-1`: ctx.octave - 1
+    of `-2`: ctx.octave - 2
+    of `-3`: ctx.octave - 3
+    of `-4`: ctx.octave - 4
+    of `-5`: ctx.octave - 5
+    of `-6`: ctx.octave - 6
 
 proc `+`*(note: Note): Note =
   case note:
@@ -608,7 +626,10 @@ proc compileContent(ctx: var Context, content: tuple) =
     when k == "length":
       setLength(ctx, v)
     elif k == "octave":
-      ctx.octave = v
+      when v is RelativeOctave:
+        ctx.octave = getOctave(ctx, v)
+      else:
+        ctx.octave = v
     elif k == "play":
       ctx.play = v
     elif k == "mode":
@@ -658,6 +679,11 @@ proc compileContent(ctx: var Context, node: JsonNode) =
       elif k == "octave":
         if v.kind == JInt:
           ctx.octave = v.num
+        elif v.kind == JString:
+          if constants.relativeOctaveSet.contains(v.str):
+            ctx.octave = getOctave(ctx, RelativeOctave(constants.relativeOctaves.find(v.str)))
+          else:
+            raise newException(Exception, "Invalid relative octave: " & $v)
         else:
           raise newException(Exception, "Invalid octave: " & $v)
       elif k == "play":
