@@ -5,31 +5,32 @@ proc instrumentImpl(body: NimNode): seq[NimNode]
 proc concurentImpl(body: NimNode): NimNode
 
 proc instrumentImpl(body: NimNode): seq[NimNode] =
+  ## Takes a given body and parses it to the proper AST
   for call in body:
     case call.kind:
-    of nnkInfix:
+    of nnkInfix: # This is `1/2: a` or similar
       let invoke = call.copyNimTree
       invoke.del(invoke.len - 1, 1)
       result.add invoke
-      if call[^1][0].kind in {nnkBracket}:
+      if call[^1][0].kind in {nnkBracket}: # This is sequential notes, so copy them
         for x in call[^1][0]:
           result.add x
-      else:
+      else: # We want these as is
         result.add call[^1][0]
-    of nnkAsgn:
+    of nnkAsgn: # We got `a = b` and want `(a: b)`
       result.add nnkPar.newTree(nnkExprColonExpr.newTree(call[0], call[1]))
-    of nnkCall:
+    of nnkCall: # Either a new Instrument ie: `piano:` or `concurrent:` block
       if call[0].eqIdent"concurrent":
         result.add call.concurentImpl
-        echo result[^1].repr
       else:
         result.add nnkTupleConstr.newTree(call[0])
         result[^1].add call[^1].instrumentImpl
-    of nnkIdent:
+    of nnkIdent: # Convert to a tuple so variables are usable `piano: measure` == `(piano, (measure))`
       result.add nnkTupleConstr.newTree(call)
     else: discard
 
 proc concurentImpl(body: NimNode): NimNode =
+  ## Takes a body and emits `((mode: Concurrent), (piano, g), (guitar, f))`
   result = nnkTupleConstr.newTree(nnkTupleConstr.newTree(nnkExprColonExpr.newTree(ident"mode",
       ident"concurrent")))
   result.add body[^1].instrumentImpl
