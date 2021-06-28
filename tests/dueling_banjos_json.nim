@@ -1,8 +1,7 @@
-import paramidi
 import json
 
 let
-  measure1 = %*[1/16, "b", "c+", 1/8, "d+", "b", "c+", "a", "b", "g", a]
+  measure1 = %*[1/16, "b", "c+", 1/8, "d+", "b", "c+", "a", "b", "g", "a"]
   measure2 = %*[1/16, "g", "g", 1/8, "g", "a", "b", "c+", "d+", "c+", 1/2, "b"]
   measure3 = %*[1/16, [{"mode": "concurrent"}, "d", "b-", "g-"], [{"mode": "concurrent"}, "d", "b-", "g-"],
                 1/8, [{"mode": "concurrent"}, "d", "b-", "g-"], [{"mode": "concurrent"}, "e", "c", "g-"],
