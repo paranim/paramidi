@@ -21,13 +21,14 @@ The fastest way to get started is by cloning the [starter project](https://githu
 (piano, (octave: 3), c, d, e, f)
 
 # attribute tuples let you change attributes for anything that comes after it
-(piano, (octave: 3), c, d, (octave: 4), e, f)
+# (the `+1` is a relative change, so e and f will be played at the 4th octave)
+(piano, (octave: 3), c, d, (octave: `+1`), e, f)
 
 # notes are 1/4 length by default, but you can change that too
-(piano, (octave: 3), c, d, (octave: 4, length: 1/2), e, f)
+(piano, (octave: 3), c, d, (octave: `+1`, length: 1/2), e, f)
 
 # you have to change note lengths often so here's a shorthand
-(piano, (octave: 3), c, d, (octave: 4), 1/2, e, f)
+(piano, (octave: 3), c, d, (octave: `+1`), 1/2, e, f)
 
 # you can change individual notes' relative octave with + or - before
 (piano, (octave: 3), c, d, 1/2, +e, +f)
@@ -53,3 +54,6 @@ The fastest way to get started is by cloning the [starter project](https://githu
 ((mode: concurrent),
  (banjo, (octave: 3), 1/16, b, +c, 1/8, +d, b, +c, a, b, g, a),
  (guitar, (octave: 3), 1/16, r, r, 1/8, g, r, d, r, g, g, d)) # the r means rest
+```
+
+You can also represent scores using Nim's json module, which allows you to manipulate them more dynamically. For example see [dueling_banjos_json.nim](https://github.com/paranim/paramidi/blob/master/tests/dueling_banjos_json.nim) (for comparison, see [dueling_banjos.nim](https://github.com/paranim/paramidi/blob/master/tests/dueling_banjos.nim) for the same score with the tuple-based syntax).
