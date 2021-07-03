@@ -11,6 +11,14 @@ test "load soundfont":
   var halfSecond: array[22050, cshort] # synthesize 0.5 seconds
   tsf_render_short(sf, cast[ptr cshort](halfSecond.addr), halfSecond.len.cint, 0)
 
+test "sharps and flats":
+  var
+    score1 = compile((piano, 1/4, cx, dx, fx, gx, ax))
+    score2 = compile((piano, 1/4, c♯, d♯, f♯, g♯, a♯))
+    score3 = compile((piano, 1/4, d♭, e♭, g♭, a♭, b♭))
+  check score1 == score2
+  check score2 == score3
+
 from algorithm import nil
 
 proc sortEvents(events: var seq[Event]) =
