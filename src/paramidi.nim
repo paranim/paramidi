@@ -732,7 +732,12 @@ proc compileContent(ctx: var Context, node: JsonNode) =
   case node.kind:
   of JString:
     if constants.noteSet.contains(node.str):
-      compileContent(ctx, Note(constants.notes.find(node.str)))
+      var idx = constants.notes.find(node.str)
+      if idx < 0:
+        idx = constants.notes♯.find(node.str)
+      if idx < 0:
+        idx = constants.notes♭.find(node.str)
+      compileContent(ctx, Note(idx))
     elif constants.instruments.contains(node.str):
       compileContent(ctx, Instrument(constants.instruments.find(node.str)))
     else:

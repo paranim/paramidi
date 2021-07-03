@@ -48,6 +48,14 @@ test "JSON simple":
   score2.sortEvents
   check score1 == score2
 
+test "JSON sharps and flats":
+  var
+    score1 = compile((piano, 1/4, cx, dx, fx, gx, ax))
+    score2 = compile(%*["piano", 1/4, "c♯", "d♯", "f♯", "g♯", "a♯"])
+    score3 = compile(%*["piano", 1/4, "d♭", "e♭", "g♭", "a♭", "b♭"])
+  check score1 == score2
+  check score2 == score3
+
 from dueling_banjos import nil
 from dueling_banjos_json import nil
 
