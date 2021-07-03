@@ -56,4 +56,6 @@ The fastest way to get started is by cloning the [starter project](https://githu
  (guitar, (octave: 3), 1/16, r, r, 1/8, g, r, d, r, g, g, d)) # the r means rest
 ```
 
+Sharp notes are represented with an `x`, so `cx` is C sharp. Using Nim's [source code filters](https://nim-lang.org/docs/filters.html) you can easily support other symbols. Source code filters can even be used to support flat notes by automatically converting them to their sharp equivalent, as you can see in [this example](tests/test2.nim).
+
 You can also represent scores using Nim's json module, which allows you to manipulate them more dynamically. For example see [dueling_banjos_json.nim](https://github.com/paranim/paramidi/blob/master/tests/dueling_banjos_json.nim) (for comparison, see [dueling_banjos.nim](https://github.com/paranim/paramidi/blob/master/tests/dueling_banjos.nim) for the same score with the tuple-based syntax).
