@@ -3,6 +3,7 @@ A Nim library for making MIDI music. It uses [TinySoundFont](https://github.com/
 ## Quick start
 
 The fastest way to get started is by cloning the [starter project](https://github.com/paranim/paramidi_starter).
+Or you can use [paramidib](https://pietroppeter.github.io/paramidib/).
 
 ## Documentation
 
