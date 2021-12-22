@@ -91,6 +91,7 @@ when isMainModule:
   const sampleRate = 44100
   tsf_set_output(sf, TSF_MONO, sampleRate, 0)
   var res = render[cshort](compile(score), sf, sampleRate)
+  tsf_close(sf)
   # create the wav file and play it
   const
     writeToDisk = true # if false, the wav file will only exist in memory
