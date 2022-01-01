@@ -9,6 +9,7 @@ Or you can use [paramidib](https://pietroppeter.github.io/paramidib/).
 
 * Check out the `examples` dir
 * Watch the screencast: https://www.youtube.com/watch?v=k3B5mhHbcK0
+* Watch the NimConf talk: https://www.youtube.com/watch?v=cBqBfPRWla8
 * Look at this commented example:
 
 ```nim
