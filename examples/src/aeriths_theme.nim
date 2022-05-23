@@ -130,7 +130,7 @@ when isMainModule:
     padding = 500f # add a half second so it doesn't cut off abruptly
   when writeToDisk:
     common.writeFile("output.wav", res.data, res.data.len.uint32, sampleRate)
-    common.play("output.wav", int(res.seconds * 1000f + padding))
+    discard common.play("output.wav", int(res.seconds * 1000f + padding))
   else:
     let wav = common.writeMemory(res.data, res.data.len.uint32, sampleRate)
-    common.play(wav, int(res.seconds * 1000f + padding))
+    discard common.play(wav, int(res.seconds * 1000f + padding))
