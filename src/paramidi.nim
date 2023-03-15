@@ -707,6 +707,11 @@ proc compileContent(ctx: var Context, node: JsonNode) =
           ctx.tempo = v.num.int
         else:
           raise newException(Exception, "Invalid tempo: " & $v)
+      elif k == "volume":
+        if v.kind == JInt:
+          ctx.tempo = v.num.int
+        else:
+          raise newException(Exception, "Invalid volume: " & $v)
       else:
         raise newException(Exception, "Invalid attribute: " & k)
   of JArray:
