@@ -738,6 +738,7 @@ proc initContext*(): Context =
     play: true,
     mode: sequential,
     tempo: 120,
+    volume: 100
   )
   new result.events
 
