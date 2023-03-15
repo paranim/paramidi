@@ -44,6 +44,9 @@ Or you can use [paramidib](https://pietroppeter.github.io/paramidib/).
 # with all that, we can write the first line of dueling banjos
 (guitar, (octave: 3), 1/8, b, +c, 1/4, +d, b, +c, a, b, g, a)
 
+# you can also set volume, which is helpful for dynamics
+(piano, (volume: 120), c, d, e, f)
+
 # chords are just notes in a set
 (piano, {c, e})
 
