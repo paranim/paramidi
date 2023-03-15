@@ -202,6 +202,7 @@ type
     instrument*: Instrument
     octave*: range[1..7]
     tempo*: int
+    volume: int
   Mode* = enum
     sequential, concurrent,
   Context* = object
@@ -214,6 +215,7 @@ type
     length*: float
     play*: bool
     mode*: Mode
+    volume: int
   RenderResult*[T] = object
     data*: seq[T]
     seconds*: float
@@ -582,6 +584,7 @@ proc compileContent(ctx: var Context, note: Note) =
     instrument: ctx.instrument,
     octave: octave,
     tempo: ctx.tempo,
+    volume: ctx.volume
   ))
   ctx.events[].add(Event(
     kind: Off,
@@ -590,6 +593,7 @@ proc compileContent(ctx: var Context, note: Note) =
     instrument: ctx.instrument,
     octave: octave,
     tempo: ctx.tempo,
+    volume: ctx.volume
   ))
   ctx.time += ctx.length
 
@@ -636,6 +640,8 @@ proc compileContent(ctx: var Context, content: tuple) =
       ctx.mode = v
     elif k == "tempo":
       ctx.tempo = v
+    elif k == "volume":
+      ctx.volume = v
     else:
       let mode = temp.mode
       compileContent(temp, v)
@@ -732,6 +738,7 @@ proc initContext*(): Context =
     play: true,
     mode: sequential,
     tempo: 120,
+    volume: 100
   )
   new result.events
 
@@ -775,6 +782,7 @@ proc render*[T: cshort](events: seq[Event], soundFont: ptr tsf, sampleRate: int)
     quarterNote = 1/4
   for event in events:
     let note = cint(event.note.ord + event.octave.ord * scaleCount + scaleCount)
+    tsf_set_volume(soundFont, cfloat event.volume / 100)
     case event.kind:
       of On:
         if event.note != r:
